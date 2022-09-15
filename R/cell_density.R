@@ -1,0 +1,30 @@
+#' Cell density
+#'
+#' Takes count results from processed images to calculate cell density based
+#' on camera field of view settings (inputted by end-user) and amount of cells
+#' filtered that the image is visualizing.
+#'
+#' @param x count results from processed image
+#' @param height height of image field of view in μm (comes from camera settings)
+#' @param width width of image field of view in μm (comes from camera settings)
+#' @param diameter median cell diameter in μm
+#' @param images total number of fields
+#' @param filtration.area filtration area in mm2
+#' @param volume volume filtered per field in mL
+#' @param total.volume total sample volume in mL
+#'
+#' @examples
+#' img <- list.files("data/Shewanella", pattern = "tif", full.name = T)
+#' img1 <- lapply(img[[1]], readTIFF)
+#' img2 <- lapply(img1, greyscale, contrast = 2)
+#' img3 <- lapply(img2, mapped, threshold = 0.3)
+#' img4 <- image_convert(img3, w = 15, h = 25, offset = 0.01, areathresh = 150)
+#' cell.total <- countCells(img4)
+#' cell_density(cell.total, height = 203.2, width = 166.4, diameter = 2.5, images = 15, filtration.area = 491, volume = 1, total.volume = 100)
+cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
+  MCF <- filtration.area / FOV
+  N <- x / images
+  cyano <- (MCF * N) / volume
+  cyano_total <- cyano * total.volume
+  return(cyano_total)
+}

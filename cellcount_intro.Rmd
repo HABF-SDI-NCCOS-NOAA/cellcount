@@ -1,0 +1,191 @@
+---
+title: "Introduction to *cellcount*"
+author: "*T.E. Harman, B. Boyd, K. Pokrzywinski*"
+date: "11/2/2021"
+abstract: >
+  The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting started:
+
+*cellcount* is an R package distributed as part of the [Bioconductor](http://bioconductor.org) project. To install the package, start R and enter:
+
+```{r, message=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+if (!require("cellcount")) {
+  BiocManager::install("cellcount")
+}
+library(cellcount)
+```
+
+The following packages are required. Please install and bring them into the R
+environment: 
+```{r, message=FALSE}
+if (!require("EBImage")) {
+  BiocManager::install("EBImage")
+}
+library(EBImage)
+library(tiff)
+library(pixmap)
+library(raster)
+```
+
+# Setting up directories/reading files:
+
+Next, generate a data frame for count data to be added into using the following
+code:
+```{r}
+Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+```
+
+You'll need to generate a couple of directories; one for saving the unique
+color label images and another for CSV files. In this example, we are using 
+images of vegetative *Alexandrium catenella* cells. Please note that your 
+directory addresses will be different. We recommend using a dedicated directory 
+for *cellcount* results:
+
+```{r}
+savdir <- ("E:/cellcount_data/CSV_data/")
+image_savdir <- ("E:/cellcount_data/Convert_Images/Convert_Alexandrium10X/")
+```
+
+Next, you'll need to read in the images you are interested in processing using
+the following code. Once again, your directories will be different and must be
+updated to the correct file address:
+
+```{r}
+images <- list.files("E:/cellcount_data/Alexandrium_10X/", pattern = "tif", full.name = T)
+images_names <- list.files("E:/cellcount_data/Alexandrium_10X/", pattern = "tif", full.name = F)
+```
+
+In addition, you'll need to assign the file names to a vector along with adding
+in characterization to each file for easy organization:
+
+```{r}
+imgNames <- paste0("Alexandrium_", images_names)
+```
+
+Now we will "read" in the images that we are interested in analyzing. The
+following code outlines this step using the "readTIFF" function from the 
+*tiff* package:
+
+```{r, warning=FALSE}
+read_images <- lapply(images, readTIFF)
+names(images) <- imgNames
+```
+
+# Beginning the conversion process:
+
+Now that our images are within the R environment, we can begin to convert these
+images into useful data that R can use to process images. First, we begin by
+converting 24-bit images into 8-bit images using the "greyscale" function (see 
+photo below). This function also has a built-in numerical contrast adjustment 
+that end-users can adjust. Note that if you already have 8-bit images, you can 
+skip this step:
+
+```{r}
+grey_images <- lapply(read_images, greyscale, contrast = 2)
+display(grey_images[[1]])
+```
+
+Next, we will use the "mapped" function to turn the 8-bit image we just
+converted into a data matrix using the following code. This also includes a
+pixel intensity threshold adjustment that end-users can change; this removes
+any pixel that is under the threshold value to easily separate the background
+from cells:
+
+```{r}
+imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
+```
+
+Before we analyze our images in bulk, set aside some code space to visually 
+analyze your images results. This could include adjusting the threshold
+from the "mapped" function, the contrast from the "greyscale" function 
+(if used), or could involve making adjustments to the "image_convert" function,
+such as the width and height of the rectangular window or the pixel area
+threshold (i.e., removes cells or other objects under a certain pixel area).
+Observe your initial results and make adjustments where necessary:
+
+```{r}
+imagesConverted <- image_convert(imagesMapped[[1]], w = 15, h = 25, offset = 0.01, areathresh = 150)
+final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+display(final_img)
+```
+
+# Analysis of images for producing count data:
+
+Once you have made necessary adjustments, use the following for-loop to
+analyze your images in bulk, one at a time. The for-loop uses the 
+"image_convert" function to produce unique color labels on cells and produce an
+image showcasing these labels using the "countImages" function. Finally, 
+"countCells" is used to count the number of unique color labels (i.e., cells).
+We also have integrated code to add these count results to the data frame made
+earlier, and also to save each unique color label image to the "image_savdir" 
+directory:
+
+```{r}
+for (z in 1:length(images)) {
+  imagesConverted <- image_convert(imagesMapped[[z]], w = 15, h = 25, offset = 0.01, areathresh = 150)
+  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- countCells(imagesConverted)
+  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
+  # display single-cell images via image_covert
+  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
+  writeImage(final_img, files = paste0(image_savdir, analyzed_image))
+}
+```
+
+Data from the image analysis has been generated in our data frame "Cell.Count"
+that we previously made. We can use the following code to view our results:
+
+```{r}
+Cell.Count
+```
+
+In order to calculate cell density of these images, we can use the
+"cell.density" function that's built into the *cellcount* package. We first
+need to generate the total amount of cells counted from these images and
+add it to our existing data frame using the following code:
+
+```{r}
+cell.total <- as.numeric(Cell.Count$Cell_Count)
+cell.total <- sum(cell.total)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total)
+```
+
+Calculating cell density, taken from Wetzel and Likens 1991, requires multiple
+values. End-users will need the following information to precisely 
+calculate this value:
+
+- Total counts (generated previously)
+- Height of image field of view (μm)
+- Width of image field of view (μm)
+- Median cell diameter (μm)
+- Total number of images analyzed
+- Filtration area (mm2)
+- Volume filtered per image (mL)
+- Total sample volume (mL)
+
+The following code uses these variables to calculate cell density and adds 
+the data into the "Cell.Count" data frame:
+
+```{r}
+cell.den <- cell_density(cell.total, height = 203.2, width = 166.4, diameter = 2.5, images = 15, filtration.area = 491, volume = 1, total.volume = 100)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den)
+```
+
+Finally, we write the following code to export our finalized .csv file to our
+pre-determined save directory:
+
+```{r}
+write.csv(Cell.Count, paste0(savdir, "/Alexandrium counts.csv"))
+```
+
+Literature
