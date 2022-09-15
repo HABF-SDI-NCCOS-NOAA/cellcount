@@ -27,9 +27,12 @@ F192<-ggplot(data=RA_F192, aes(x=Script,y=Visual))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -58,9 +61,12 @@ F210<-ggplot(data=RA_F210, aes(x=Script,y=Visual))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -89,9 +95,12 @@ Anabena<-ggplot(data=RA_Anabena, aes(x=Script,y=Visual))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -119,9 +128,12 @@ Shewanella<-ggplot(data=RA_Shewanella, aes(x=Script,y=Visual))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -156,9 +168,12 @@ F192_M<-ggplot(data=RA_F192, aes(x=Script,y=Microscope))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -182,9 +197,12 @@ F210_M<-ggplot(data=RA_F210, aes(x=Script,y=Microscope))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
@@ -208,9 +226,12 @@ Anabena_M<-ggplot(data=RA_Anabena, aes(x=Script,y=Microscope))+
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
         axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=1.5))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
