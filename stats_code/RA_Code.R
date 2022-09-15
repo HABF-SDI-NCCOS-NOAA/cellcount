@@ -3,7 +3,7 @@ library(gridExtra)
 library(ggpubr)
 library(cowplot)
 
-setwd("~/cellcount_main/data")
+setwd("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/data")
 
 RA<-read.csv("Regression_Analysis.csv",header=T)
 
