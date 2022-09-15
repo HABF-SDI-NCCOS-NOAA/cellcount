@@ -49,7 +49,16 @@ for (z in 1:length(images)) {
 }
 
 Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-Cell.Count$outliers<-scores(Cell.Count$Cell_Count,type="z",prob=0.9)
+outlier<-function(){
+  mean<-median(Cell.Count$Cell_Count)
+  sd<-sd(Cell.Count$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
+    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  return(SD_range_detection)
+}
+Cell.Count$SD_range<-outlier()
 
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
