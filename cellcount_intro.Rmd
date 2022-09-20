@@ -1,7 +1,7 @@
 ---
 title: "Introduction to *cellcount*"
-author: "*T.E. Harman, B. Boyd, K. Pokrzywinski*"
-date: "11/2/2021"
+author: "*T.E. Harman, M. Vandersea, D.E. Berthold, H.D. Laughinghouse, K. Pokrzywinski*"
+date: "9/__/2022"
 abstract: >
   The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 output: html_document
@@ -35,6 +35,7 @@ library(EBImage)
 library(tiff)
 library(pixmap)
 library(raster)
+library(beepr)
 ```
 
 # Setting up directories/reading files:
@@ -47,37 +48,42 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 You'll need to generate a couple of directories; one for saving the unique
 color label images and another for CSV files. In this example, we are using 
-images of vegetative *Alexandrium catenella* cells. Please note that your 
+images of *Microcystis* sp. cells. Please note that your 
 directory addresses will be different. We recommend using a dedicated directory 
 for *cellcount* results:
 
 ```{r}
-savdir <- ("E:/cellcount_data/CSV_data/")
-image_savdir <- ("E:/cellcount_data/Convert_Images/Convert_Alexandrium10X/")
+savdir <- ("H:/CSV_data/")
+image_savdir <- ("H:/Convert_Images/F192_Test/")
 ```
 
 Next, you'll need to read in the images you are interested in processing using
 the following code. Once again, your directories will be different and must be
-updated to the correct file address:
+updated to the correct file address. However, in this example we will be using
+the provided test images from this package:
 
 ```{r}
-images <- list.files("E:/cellcount_data/Alexandrium_10X/", pattern = "tif", full.name = T)
-images_names <- list.files("E:/cellcount_data/Alexandrium_10X/", pattern = "tif", full.name = F)
+images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
 In addition, you'll need to assign the file names to a vector along with adding
 in characterization to each file for easy organization:
 
 ```{r}
-imgNames <- paste0("Alexandrium_", images_names)
+file_name<-paste0("F192_")
 ```
 
 Now we will "read" in the images that we are interested in analyzing. The
 following code outlines this step using the "readTIFF" function from the 
-*tiff* package:
+*tiff* package. In addition, we'll need to re-orient the image as it's uploaded
+into the environment. The "readTIFF" function uploads images in a portrait 
+format - the "aperm" function reorients the uploaded image to a landscape format:
 
 ```{r, warning=FALSE}
+imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
+img_transposed <- lapply(read_images,aperm,c(2,1,3))
 names(images) <- imgNames
 ```
 
@@ -91,8 +97,8 @@ that end-users can adjust. Note that if you already have 8-bit images, you can
 skip this step:
 
 ```{r}
-grey_images <- lapply(read_images, greyscale, contrast = 2)
-display(grey_images[[1]])
+grey_images <- lapply(img_transposed, greyscale, contrast = 1)
+display(grey_images[[5]])
 ```
 
 Next, we will use the "mapped" function to turn the 8-bit image we just
@@ -109,12 +115,13 @@ Before we analyze our images in bulk, set aside some code space to visually
 analyze your images results. This could include adjusting the threshold
 from the "mapped" function, the contrast from the "greyscale" function 
 (if used), or could involve making adjustments to the "image_convert" function,
-such as the width and height of the rectangular window or the pixel area
-threshold (i.e., removes cells or other objects under a certain pixel area).
-Observe your initial results and make adjustments where necessary:
+such as the width and height of the rectangular window, the pixel area
+threshold (i.e., removes cells or other objects under a certain pixel area), 
+or the tolerance and 'ext' variables. Observe your initial results as indicated
+below and make adjustments where necessary:
 
 ```{r}
-imagesConverted <- image_convert(imagesMapped[[1]], w = 15, h = 25, offset = 0.01, areathresh = 150)
+imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
 final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
@@ -123,22 +130,21 @@ display(final_img)
 
 Once you have made necessary adjustments, use the following for-loop to
 analyze your images in bulk, one at a time. The for-loop uses the 
-"image_convert" function to produce unique color labels on cells and produce an
-image showcasing these labels using the "countImages" function. Finally, 
-"countCells" is used to count the number of unique color labels (i.e., cells).
-We also have integrated code to add these count results to the data frame made
-earlier, and also to save each unique color label image to the "image_savdir" 
-directory:
+"image_convert" function to produce unique color labels on cells within
+an image and to produce a final image showcasing these labels using the 
+"countImages" function. Finally, "countCells" is used to count the number of 
+unique color labels (i.e., cells). We also have integrated code to add these 
+count results to the data frame made earlier, and also to save each unique 
+color label image to the "image_savdir" directory:
 
 ```{r}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 15, h = 25, offset = 0.01, areathresh = 150)
+  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
   final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- countCells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
-  # display single-cell images via image_covert
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image))
+  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 ```
 
@@ -146,6 +152,20 @@ Data from the image analysis has been generated in our data frame "Cell.Count"
 that we previously made. We can use the following code to view our results:
 
 ```{r}
+Cell.Count
+```
+
+Some images that were initially taken may be too poor of quality or contain
+high background fluorescence, among other errors. The code below analyzes 
+outliers from the produced data, within a range of two standard deviations 
+above and below the median. The "outlier" function tags which images are
+out of this range and dictates a warning within our data frame, which is shown 
+below. This alerts the end-user to perhaps re-image a particular sample, or
+to investigate the error further.
+
+```{r}
+Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
+Cell.Count$SD_range<-outlier()
 Cell.Count
 ```
 
@@ -157,8 +177,12 @@ add it to our existing data frame using the following code:
 ```{r}
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
 ```
+
+*Important note* - *the "null" data produced in the code above (and others that*
+*follow) fills in the blanks from the previous data produced by the* 
+*"outlier" function.*
 
 Calculating cell density, taken from Wetzel and Likens 1991, requires multiple
 values. End-users will need the following information to precisely 
@@ -169,7 +193,7 @@ calculate this value:
 - Width of image field of view (μm)
 - Median cell diameter (μm)
 - Total number of images analyzed
-- Filtration area (mm2)
+- Filtration area (mm^2)
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
@@ -177,8 +201,26 @@ The following code uses these variables to calculate cell density and adds
 the data into the "Cell.Count" data frame:
 
 ```{r}
-cell.den <- cell_density(cell.total, height = 203.2, width = 166.4, diameter = 2.5, images = 15, filtration.area = 491, volume = 1, total.volume = 100)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den)
+cell.den <- cell_density(cell.total, height = 203.2, width = 166.4, diameter = 2.5, images = 15,
+                         filtration.area = 491, volume = 1, total.volume = 100)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
+```
+
+We can also calculate the average number of cells per image, as well as cells
+per mL using the following code:
+
+```{r}
+cell.av<-(cell.total/10)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
+
+cell.mL<-(cell.den/2) #change this via total volume
+Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
+```
+
+We can now view our data frame to double check for any calculation errors:
+
+```{r}
+Cell.Count
 ```
 
 Finally, we write the following code to export our finalized .csv file to our
