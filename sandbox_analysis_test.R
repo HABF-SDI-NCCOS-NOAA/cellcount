@@ -11,14 +11,14 @@ gc()
 
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 
-file_name<-paste0("E.coli_") #Change the name of species analyzed here
+file_name<-paste0("F192_") #Change the name of species analyzed here
 
 #Change directories here
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/CSV_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_DAPI/3C/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/3C/"
+savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
+image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
+images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/"
                      , pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/3C/"
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/"
                            , pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
@@ -34,13 +34,13 @@ imagesMapped <- lapply(grey_images, mapped, threshold = 0.3) #background intensi
 
 #IMAGE TESTING - do you need to make variable adjustments?
 
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 1, ext = 1)
 #Change variables above depending on species analyzed
 final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 1, ext = 1)
   final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- countCells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
@@ -66,15 +66,15 @@ cell.total <- sum(cell.total)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
 
 #Change variables outlined below
-cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 0.02, total.volume = 1)
+cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 
 cell.av<-(cell.total/10)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 
-cell.mL<-(cell.den/1) #change this via total volume
+cell.mL<-(cell.den/5) #change this via total volume
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
-write.csv(Cell.Count, paste0(savdir, "/E.coli_3C counts.csv")) #Change this CSV file name
+write.csv(Cell.Count, paste0(savdir, "/F192_test counts.csv")) #Change this CSV file name
 
 beepr::beep(sound=2) #analysis complete
