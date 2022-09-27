@@ -15,10 +15,10 @@ file_name<-paste0("E.coli_") #Change the name of species analyzed here
 
 #Change directories here
 savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/CSV_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_DAPI/1E/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/1E/"
+image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_DAPI/3C/")
+images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/3C/"
                      , pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/1E/"
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/3C/"
                            , pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
@@ -66,15 +66,15 @@ cell.total <- sum(cell.total)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
 
 #Change variables outlined below
-cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 0.05, total.volume = 2)
+cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 0.02, total.volume = 1)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 
 cell.av<-(cell.total/10)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 
-cell.mL<-(cell.den/2) #change this via total volume
+cell.mL<-(cell.den/1) #change this via total volume
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
-write.csv(Cell.Count, paste0(savdir, "/E.coli_1E counts.csv")) #Change this CSV file name
+write.csv(Cell.Count, paste0(savdir, "/E.coli_3C counts.csv")) #Change this CSV file name
 
 beepr::beep(sound=2) #analysis complete
