@@ -135,6 +135,28 @@ or the tolerance and 'ext' variables. Observe your initial results as indicated
 below and make adjustments where necessary:
 
 ```{r}
+border <- function(x, y) {
+  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
+}
+countCells <- function(x) {
+  countAll <- max(x)
+  dims <- dim(x)
+  border1 <- border(x, dims)
+  ids <- unique(border1[which(border1 != 0)])
+  countInner <- countAll - length(ids)
+  return(countInner)
+}
+countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+  if (removeEdgeCells) {
+    dims <- dim(image)
+    border1 <- border(image, dims)
+    ids <- unique(border1[which(border1 != 0)])
+    inner <- rmObjects(image, ids)
+    EBImage::colorLabels(inner, normalize = normalize)
+  } else {
+    EBImage::colorLabels(image, normalize = normalize)
+  }
+}
 image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
@@ -161,28 +183,6 @@ count results to the data frame made earlier, and also to save each unique
 color label image to the "image_savdir" directory:
 
 ```{r}
-border <- function(x, y) {
-  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
-}
-countCells <- function(x) {
-  countAll <- max(x)
-  dims <- dim(x)
-  border1 <- border(x, dims)
-  ids <- unique(border1[which(border1 != 0)])
-  countInner <- countAll - length(ids)
-  return(countInner)
-}
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
-  if (removeEdgeCells) {
-    dims <- dim(image)
-    border1 <- border(image, dims)
-    ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
-    EBImage::colorLabels(inner, normalize = normalize)
-  } else {
-    EBImage::colorLabels(image, normalize = normalize)
-  }
-}
 for (z in 1:length(images)) {
   imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
   final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
@@ -263,8 +263,6 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   cyano_total <- cyano * total.volume
   return(cyano_total)
 }
-cell.den <- cell_density(cell.total, height = 203.2, width = 166.4, diameter = 2.5, images = 15,
-                         filtration.area = 491, volume = 1, total.volume = 100)
 cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 0.05, total.volume = 2)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 ```
@@ -309,6 +307,6 @@ when analyzing images.
 
 ![A greyscale image (left) of *Alexandrium catenella* and a binary filter 
 image (right) demonstrating the error results of high-detail from cells,
-causing incorrect enumeration results.](C:\Users\Tyler.Harman\Desktop\cellcount_work\misc_\Error Images)
+causing incorrect enumeration results.](C:\Users\Tyler.Harman\Desktop\cellcount_work\misc_\Error Images\Error1.png)
 
 Literature
