@@ -75,6 +75,6 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 cell.mL<-(cell.den/15) #change this via total volume
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
-write.csv(Cell.Count, paste0(savdir, "/F192_test counts.csv")) #Change this CSV file name
+write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv")) #Change this CSV file name
 
 beepr::beep(sound=2) #analysis complete
