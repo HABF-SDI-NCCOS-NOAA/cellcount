@@ -204,7 +204,6 @@ Some images that were initially taken may be too poor of quality or contain
 high background fluorescence, among other errors. The code below analyzes 
 outliers from the produced data, within a range of two standard deviations 
 above and below the median. The "outlier" function tags which images are
-<<<<<<< HEAD
 out of this range and dictates a warning within our data frame, which is shown 
 below. This alerts the end-user to perhaps re-image a particular sample, or
 to investigate the error further.
@@ -252,8 +251,26 @@ calculate this value:
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
-The following code uses these variables to calculate cell density and adds 
-the data into the "Cell.Count" data frame:
+Field of view (FOV) is an important variable calculated from image height,
+image width, and cell diameter variables. The following equation is listed
+below:
+
+$FOV = HW - 2D(H+W)+4D^{2}$
+
+Where:
+
+$H = height$
+
+$W = width$
+
+$D = diameter$
+
+Image height and width are variables that are taken from dimensions 
+disseminated by your microscope camera's manufacturer. Please refer to their 
+documentation to calculate your FOV variable correctly.
+
+With the variables calculated, the following code uses these variables to 
+calculate cell density and adds the data into the "Cell.Count" data frame:
 
 ```{r}
 cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
@@ -303,10 +320,33 @@ enumeration results.
 
 While high image quality is applauded when using this package, sometimes the
 natural auto-fluorescence may be too detailed, revealing potential problems
-when analyzing images.
+when analyzing images. End-users may want to try different objectives in order
+to reduce detail as much as possible while able to show distinction between
+cells, or use another fluorescent dye (i.e. DAPI) in order to the program to
+produce more accurate enumeration results.
 
 ![A greyscale image (left) of *Alexandrium catenella* and a binary filter 
 image (right) demonstrating the error results of high-detail from cells,
 causing incorrect enumeration results.](C:\Users\Tyler.Harman\Desktop\cellcount_work\misc_\Error Images\Error1.png)
+
+![A color-label image of *Prorocentrum* sp. where high details were shown from
+its fluorescing outer membrane, which caused the program to divide and 
+enumerate distinct regions shown here.](C:\Users\Tyler.Harman\Desktop\cellcount_work\misc_\Error Images\3214435.png)
+
+## High background intensities
+
+If high background intensities is observed within images, errors could occur
+like the one shown below, where the threshold adjustment built into the
+"mapped" function cannot separate the high intensity background from the
+majority of cells within the image. End-users should re-take these images and
+reduce the background intensity as much as possible. Snap images as rapidly as
+you can to avoid fluorescent dyes from increasing in fluorescent output - one
+of the contributing factors that we have observed throughout the development
+of this package.
+
+![A color-label image of *Shewanella* IRI-160 resulting from a high
+background intensity error. This caused the program to produce an 
+inconclusive image, due to the lack of being able to separate the high
+background intensity from the cells within the image.](C:\Users\Tyler.Harman\Desktop\cellcount_work\misc_\Error Images\542365.png)
 
 Literature
