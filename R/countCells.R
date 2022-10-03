@@ -8,12 +8,7 @@
 #' @return Counting cells within \code{x}
 #'
 #' @examples
-#' img <- list.files("data/Karlodinium", pattern = "tif", full.name = T)
-#' img1 <- lapply(img[[1]], readTIFF)
-#' img2 <- lapply(img1, greyscale, contrast = 2)
-#' img3 <- lapply(img2, mapped, threshold = 0.3)
-#' img4 <- image_convert(img3, w = 15, h = 25, offset = 0.01, areathresh = 150)
-#' countCells(img4)
+
 countCells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)

@@ -8,10 +8,7 @@
 #' @param threshold a numerical value of pixel intensity
 #'
 #' @examples
-#' img <- list.files("data/Karlodinium", pattern = "tif", full.name = T)
-#' img1 <- lapply(img[[1]], readTIFF)
-#' img2 <- lapply(img1, greyscale, contrast = 2)
-#' img3 <- lapply(img2, mapped, threshold = 0.3)
+
 mapped <- function(x, threshold = 0.3) {
   x <- as.matrix(x)
   x[x < threshold] <- 0
