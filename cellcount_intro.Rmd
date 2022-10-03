@@ -455,6 +455,8 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 cell.mL<-(cell.den/15)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
+write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
+
 Cell.Count
 ```
 Test data results for *Anabena* sp.
@@ -579,6 +581,8 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 
 cell.mL<-(cell.den/2)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
+
+write.csv(Cell.Count, paste0(savdir, "/Shewanella_test counts.csv"))
 
 Cell.Count
 ```
