@@ -11,6 +11,7 @@ RA_F192<-subset(RA,Species=="F192")
 RA_F210<-subset(RA,Species=="F210")
 RA_Anabena<-subset(RA,Species=="Anabena")
 RA_Shewanella<-subset(RA,Species=="Shewanella")
+RA_E.coli<-subset(RA,Species=="E.coli")
 
 RA_F192$Script<-(RA_F192$Script/1000000)
 RA_F192$Visual<-(RA_F192$Visual/1000000)
@@ -22,7 +23,7 @@ summary(data.lm1)
 F192<-ggplot(data=RA_F192, aes(x=Script,y=Visual))+
   theme_bw()+
   labs(x=expression(paste(italic("cellcount"), " results (",x10^{6},")")))+
-  labs(y=expression(paste("Manual counts ( ",x10^{6},")")))+
+  labs(y=expression(paste("Visual counts ( ",x10^{6},")")))+
   theme(axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
@@ -32,17 +33,17 @@ F192<-ggplot(data=RA_F192, aes(x=Script,y=Visual))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
   geom_abline(slope=coef(data.lm1)[["Script"]],
               intercept=coef(data.lm1)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=21,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=21,colour="black",fill="grey60",stroke=1.5)
 F192
 
 
@@ -56,7 +57,7 @@ summary(data.lm2)
 F210<-ggplot(data=RA_F210, aes(x=Script,y=Visual))+
   theme_bw()+
   labs(x=expression(paste(italic("cellcount"), " results (",x10^{6},")")))+
-  labs(y=expression(paste("Manual counts ( ",x10^{6},")")))+
+  labs(y=expression(paste("Visual counts ( ",x10^{6},")")))+
   theme(axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
@@ -66,17 +67,17 @@ F210<-ggplot(data=RA_F210, aes(x=Script,y=Visual))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
   geom_abline(slope=coef(data.lm2)[["Script"]],
               intercept=coef(data.lm2)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=22,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=22,colour="black",fill="grey60",stroke=1.5)
 F210
 
 
@@ -90,7 +91,7 @@ summary(data.lm3)
 Anabena<-ggplot(data=RA_Anabena, aes(x=Script,y=Visual))+
   theme_bw()+
   labs(x=expression(paste(italic("cellcount"), " results (",x10^{6},")")))+
-  labs(y=expression(paste("Manual counts ( ",x10^{6},")")))+
+  labs(y=expression(paste("Visual counts ( ",x10^{6},")")))+
   theme(axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
@@ -100,17 +101,17 @@ Anabena<-ggplot(data=RA_Anabena, aes(x=Script,y=Visual))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
   geom_abline(slope=coef(data.lm3)[["Script"]],
               intercept=coef(data.lm3)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=23,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=23,colour="black",fill="grey60",stroke=1.5)
 Anabena
 
 
@@ -123,7 +124,7 @@ summary(data.lm4)
 Shewanella<-ggplot(data=RA_Shewanella, aes(x=Script,y=Visual))+
   theme_bw()+
   labs(x=expression(paste(italic("cellcount"), " results (",x10^{10},")")))+
-  labs(y=expression(paste("Manual counts ( ",x10^{10},")")))+
+  labs(y=expression(paste("Visual counts ( ",x10^{10},")")))+
   theme(axis.title.x = element_text(size=15),
         axis.title.y = element_text(size=15,vjust=2))+
   theme(axis.text.x = element_text(size = 15),
@@ -133,32 +134,65 @@ Shewanella<-ggplot(data=RA_Shewanella, aes(x=Script,y=Visual))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
   geom_abline(slope=coef(data.lm4)[["Script"]],
               intercept=coef(data.lm4)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=24,colour="black",fill="grey60",stroke=1.5)
+              size=1.5)+
+  geom_point(size=4,shape=24,colour="black",fill="grey60",stroke=1.5)
 Shewanella
+
+
+RA_E.coli$Script<-(RA_E.coli$Script/1000000000)
+RA_E.coli$Visual<-(RA_E.coli$Visual/1000000000)
+
+data.lm5<-lm(Visual~Script,data=RA_E.coli)
+summary(data.lm5)
+
+E.coli<-ggplot(data=RA_E.coli, aes(x=Script,y=Visual))+
+  theme_bw()+
+  labs(x=expression(paste(italic("cellcount"), " results (",x10^{9},")")))+
+  labs(y=expression(paste("Visual counts ( ",x10^{9},")")))+
+  theme(axis.title.x = element_text(size=15),
+        axis.title.y = element_text(size=15,vjust=2))+
+  theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15),
+        axis.ticks = element_line(size=1.5),
+        axis.ticks.length = unit(0.25,"cm"),
+        plot.margin=unit(c(1,1,1,0.26),"cm"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(size=2))+
+  scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
+  scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
+  xlim(0,12)+
+  ylim(0,12)+
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
+  geom_abline(slope=coef(data.lm5)[["Script"]],
+              intercept=coef(data.lm5)[["(Intercept)"]],
+              linetype=2,
+              size=1.5)+
+  geom_point(size=4,shape=25,colour="black",fill="grey60",stroke=1.5)
+E.coli
 
 
 
 tiff("RA_Analysis1.tiff", height = 32, width = 30, units = 'cm', 
      compression = "lzw", res = 300)
-plot_grid(Anabena,F192,F210,Shewanella, nrow = 2, labels = "AUTO",label_size = 25)
+plot_grid(Anabena,F192,F210,Shewanella,E.coli, ncol = 2, nrow = 3, labels = "AUTO",label_x = 0.23,hjust=1,vjust=5,label_size = 15, label_fontface = "plain")
 dev.off()
 
 
 
 
 
-data.lm5<-lm(Microscope~Script,data=RA_F192)
-summary(data.lm5)
+data.lm6<-lm(Microscope~Script,data=RA_F192)
+summary(data.lm6)
 
 F192_M<-ggplot(data=RA_F192, aes(x=Script,y=Microscope))+
   theme_bw()+
@@ -173,21 +207,21 @@ F192_M<-ggplot(data=RA_F192, aes(x=Script,y=Microscope))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
-  geom_abline(slope=coef(data.lm5)[["Script"]],
-              intercept=coef(data.lm5)[["(Intercept)"]],
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
+  geom_abline(slope=coef(data.lm6)[["Script"]],
+              intercept=coef(data.lm6)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=21,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=21,colour="black",fill="grey60",stroke=1.5)
 F192_M
 
-data.lm6<-lm(Microscope~Script,data=RA_F210)
-summary(data.lm6)
+data.lm7<-lm(Microscope~Script,data=RA_F210)
+summary(data.lm7)
 
 F210_M<-ggplot(data=RA_F210, aes(x=Script,y=Microscope))+
   theme_bw()+
@@ -202,21 +236,21 @@ F210_M<-ggplot(data=RA_F210, aes(x=Script,y=Microscope))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
-  geom_abline(slope=coef(data.lm6)[["Script"]],
-              intercept=coef(data.lm6)[["(Intercept)"]],
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
+  geom_abline(slope=coef(data.lm7)[["Script"]],
+              intercept=coef(data.lm7)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=22,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=22,colour="black",fill="grey60",stroke=1.5)
 F210_M
 
-data.lm7<-lm(Microscope~Script,data=RA_Anabena)
-summary(data.lm7)
+data.lm8<-lm(Microscope~Script,data=RA_Anabena)
+summary(data.lm8)
 
 Anabena_M<-ggplot(data=RA_Anabena, aes(x=Script,y=Microscope))+
   theme_bw()+
@@ -231,22 +265,22 @@ Anabena_M<-ggplot(data=RA_Anabena, aes(x=Script,y=Microscope))+
         plot.margin=unit(c(1,1,1,1),"cm"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_rect(size=1.5))+
+        panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
   xlim(0,5)+
   ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="red",size=1,alpha=0.4)+
-  geom_abline(slope=coef(data.lm7)[["Script"]],
-              intercept=coef(data.lm7)[["(Intercept)"]],
+  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
+  geom_abline(slope=coef(data.lm8)[["Script"]],
+              intercept=coef(data.lm8)[["(Intercept)"]],
               linetype=2,
-              size=1)+
-  geom_point(size=3,shape=23,colour="black",fill="grey60",stroke=1.5)
+              size=2)+
+  geom_point(size=4,shape=23,colour="black",fill="grey60",stroke=1.5)
 Anabena_M
 
 
 
 tiff("RA_Analysis2.tiff", height = 30, width = 30, units = 'cm', 
      compression = "lzw", res = 300)
-plot_grid(Anabena_M,F192_M,F210_M, nrow = 2, labels = "AUTO",label_size = 25)
+plot_grid(Anabena_M,F192_M,F210_M, ncol = 2, nrow = 2, labels = "AUTO",label_x = 0.23,hjust=1,vjust=5,label_size = 15, label_fontface = "plain")
 dev.off()

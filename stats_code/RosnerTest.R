@@ -1,7 +1,7 @@
 library(outliers)
 library(EnvStats)
 
-setwd("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/stat_code/")
+setwd("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/data/")
 
 RA<-read.csv("Regression_Analysis_IND.csv",header=T)
 
@@ -73,3 +73,22 @@ rosnerTest(RA_ShewanellaB$Visual)
 rosnerTest(RA_ShewanellaC$Visual)
 rosnerTest(RA_ShewanellaD$Visual)
 rosnerTest(RA_ShewanellaE$Visual)
+
+
+RA_E.coli<-subset(RA,Species=="E.coli")
+RA_E.coliA<-subset(RA_E.coli,Concentration=="A")
+RA_E.coliB<-subset(RA_E.coli,Concentration=="B")
+RA_E.coliC<-subset(RA_E.coli,Concentration=="C")
+RA_E.coliD<-subset(RA_E.coli,Concentration=="D")
+RA_E.coliE<-subset(RA_E.coli,Concentration=="E")
+
+rosnerTest(RA_E.coliA$Script)
+rosnerTest(RA_E.coliB$Script)
+rosnerTest(RA_E.coliC$Script)
+rosnerTest(RA_E.coliD$Script)
+rosnerTest(RA_E.coliE$Script)
+rosnerTest(RA_E.coliA$Visual)
+rosnerTest(RA_E.coliB$Visual)
+rosnerTest(RA_E.coliC$Visual)
+rosnerTest(RA_E.coliD$Visual)
+rosnerTest(RA_E.coliE$Visual)
