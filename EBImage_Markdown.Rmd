@@ -9,6 +9,38 @@ output: html_document
 
 # Overview:
 
+Climate change and anthropogenic impacts have exacerbated the presence of 
+harmful algal blooms (HABs) within marine and freshwater environments. 
+Rising temperatures, stratification strength, reduction of vertical mixing, 
+and increases in nutrients attribute to these increases in blooms. Routine 
+monitoring of HABs has become important in order to understand ecosystem and 
+public health risk and establish mitigation practices. 
+
+Standard methods involve the enumeration of HAB species using microscopy 
+methods (i.e. hemocytometer), which is considered the gold standard, as well 
+as other methods such as qPCR and flow cytometry. These methods can be time 
+consuming and require significant knowledge related to these technologies. 
+Technology has advanced enumeration needs to decrease time consumption while 
+also maintaining accuracy. Instruments such as the FlowCam&trade; and Imaging 
+Flow Cytobot (IFCB) have been developed for these purposes; however, these 
+instruments are expensive to purchase, operate, and maintain. The need for 
+open-source technologies is important for accessibility reasons, but also for 
+end-user customization needs. 
+
+Our project sought to solve the two mentioned issues on developing enumeration 
+technology for open-source capabilities: accessibility and customization. A 
+prior report released by Pokrzywinski et al. (2019) had outlined the 
+development of an automated cyanobacteria enumeration script using the 
+open-source programming language, R, along with several functions from the 
+R package *EBImage*. However, the previous presentation of 
+this script can be considered extremely difficult to grasp for inexperienced 
+R users. We utilized this script as a template for the development of an R 
+package, involving the reduction of code into simple functions, expanding 
+the ability for end-user modifications, development of a vignette for 
+inexperienced users, and promoting open-source availability. Along with these 
+goals, we aim to establish a rapid and accurate enumeration method for 
+researchers, where significantly less time is consumed compared to the 
+standard enumeration methods available.
 
 
 ```{r setup, include=FALSE}
@@ -17,21 +49,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Getting started:
 
-*cellcount* is an R package distributed as part of the [Bioconductor](http://bioconductor.org) project. To install the package, start R and enter:
-
+The following packages are required. Please install and bring them into the R
+environment: 
 ```{r, message=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
-if (!require("cellcount")) {
-  BiocManager::install("cellcount")
-}
-library(cellcount)
-```
-
-The following packages are required. Please install and bring them into the R
-environment: 
-```{r, message=FALSE}
 if (!require("EBImage")) {
   BiocManager::install("EBImage")
 }
@@ -39,7 +62,6 @@ library(EBImage)
 library(tiff)
 library(pixmap)
 library(raster)
-library(beepr)
 ```
 
 # Setting up directories/reading files:
@@ -52,13 +74,13 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 You'll need to generate a couple of directories; one for saving the unique
 color label images and another for CSV files. In this example, we are using 
-images of *Microcystis* sp. cells. Please note that your 
-directory addresses will be different. We recommend using a dedicated directory 
-for *cellcount* results:
+images of *Microcystis* sp. cells that are contained within the package as test
+data. Please note that your directory addresses will be different. We recommend 
+using a dedicated directory for *cellcount* results:
 
 ```{r,message=FALSE}
-savdir <- ("C:/file path for saving CSV data")
-image_savdir <- ("C:/file path for saving converted images")
+savdir <- ("file path for saving CSV data")
+image_savdir <- ("file path for saving converted images")
 ```
 ```{r,include=FALSE}
 savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
@@ -71,8 +93,8 @@ updated to the correct file address. However, in this example we will be using
 the provided test images from this package:
 
 ```{r,message=FALSE}
-images <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = T)
-images_names <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = F)
+images <- list.files("file path of images to analyze", pattern = "tif", full.name = T)
+images_names <- list.files("file path of images to analyze", pattern = "tif", full.name = F)
 ```
 ```{r,include=FALSE}
 images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
@@ -99,6 +121,8 @@ img_transposed <- lapply(read_images,aperm,c(2,1,3))
 names(images) <- imgNames
 ```
 
+
+
 # Beginning the conversion process:
 
 Now that our images are within the R environment, we can begin to convert these
@@ -107,7 +131,7 @@ converting 24-bit images into 8-bit images using the "greyscale" function (see
 photo below). This function also has a built-in numerical contrast adjustment 
 that end-users can adjust:
 
-```{r,include=FALSE}
+```{r}
 greyscale <- function(x, contrast = 2) {
   x <- contrast * x
   x <- x[, , 1] + x[, , 2] + x[, , 3]
@@ -122,12 +146,12 @@ display(grey_images[[5]])
 ```
 
 Next, we will use the "mapped" function to turn the 8-bit image we just
-converted into a data matrix using the following code. This also includes a
-pixel intensity threshold adjustment that end-users can change; this removes
-any pixel that is under the threshold value to easily separate the background
-from cells:
+converted into a data matrix (using 'as.matrix') using the following code. 
+This also includes a pixel intensity threshold adjustment that end-users can 
+change; this removes any pixel that is under the threshold value to easily 
+separate the background from cells:
 
-```{r,include=FALSE}
+```{r}
 mapped <- function(x, threshold = 0.3) {
   x <- as.matrix(x)
   x[x < threshold] <- 0
@@ -138,27 +162,16 @@ mapped <- function(x, threshold = 0.3) {
 imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
 ```
 
-Before we analyze our images in bulk, set aside some code space to visually 
-analyze your images results. This could include adjusting the threshold
-from the "mapped" function, the contrast from the "greyscale" function 
-(if used), or could involve making adjustments to the "image_convert" function,
-such as the width and height of the rectangular window, the pixel area
-threshold (i.e., removes cells or other objects under a certain pixel area), 
-or the tolerance and 'ext' variables. Observe your initial results as indicated
-below and make adjustments where necessary:
+Before we analyze our images in bulk, we introduce here several functions
+that are required to take matrix data to count cells within images and to
+produce 'color-label' images. These include the following:
 
-```{r,include=FALSE}
-border <- function(x, y) {
-  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
-}
-countCells <- function(x) {
-  countAll <- max(x)
-  dims <- dim(x)
-  border1 <- border(x, dims)
-  ids <- unique(border1[which(border1 != 0)])
-  countInner <- countAll - length(ids)
-  return(countInner)
-}
+**"countImages" function:** Displays converted microscopy images of distinct 
+cell counts subsequently from the image_convert function. Can use the "display" 
+function from EBImage to automatically generate the produced image from this 
+function.
+
+```{r}
 countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
@@ -170,6 +183,41 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
+```
+
+**"border" function:** Takes images to predict cells along a predetermined 
+border in order to count cells within the predetermined border. Cells along the
+predetermined border are not counted, which is outlined in the "countCells"
+function.
+
+```{r}
+border <- function(x, y) {
+  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
+}
+```
+
+**"countCells" function:** Takes information from a converted image and counts 
+cells within the image. This uses the "border" function to remove cells along 
+the image border and only count cells within the image.
+
+```{r}
+countCells <- function(x) {
+  countAll <- max(x)
+  dims <- dim(x)
+  border1 <- border(x, dims)
+  ids <- unique(border1[which(border1 != 0)])
+  countInner <- countAll - length(ids)
+  return(countInner)
+}
+```
+
+**"image_convert" function:** Takes a mapped image (i.e., data matrix) and 
+counts individual cells within an image. This is to be used with a single image 
+with cells that contains a single fluorescent dimension 
+(i.e. auto-fluorescence, DAPI, etc.). This is useful for analyzing images
+containing single-cell cyanobacteria.
+
+```{r}
 image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
@@ -180,8 +228,38 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
   return(image3)
 }
 ```
+
+We also include a separate, yet similar function to "image_convert" called 
+"image_convert2". This function is ideally meant for filamentous or 
+colonial-type cyanobacteria that are harder to discern with the standard 
+"image_convert" function. The difference between these functions are that 
+the "watershed" function from the EBImage package comes first in the outlined 
+function compared to the "image_convert" function.
+
 ```{r}
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- fillHull(image1)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+```
+
+In addition, set aside some code space to visually 
+analyze your images results. This could include adjusting the threshold
+from the "mapped" function, the contrast from the "greyscale" function 
+(if used), or could involve making adjustments to the "image_convert" function,
+such as the width and height of the rectangular window, the pixel area
+threshold (i.e., removes cells or other objects under a certain pixel area), 
+or the tolerance and 'ext' variables. Observe your initial results as indicated
+below and make adjustments where necessary:
+
+```{r}
+imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, 
+                                 tolerance = 0.8, ext = 1)
 final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
@@ -199,7 +277,8 @@ color label image to the "image_savdir" directory:
 
 ```{r}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, 
+                                   tolerance = 0.8, ext = 1)
   final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- countCells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
@@ -223,7 +302,7 @@ out of this range and dictates a warning within our data frame, which is shown
 below. This alerts the end-user to perhaps re-image a particular sample, or
 to investigate the error further.
 
-```{r,include=FALSE}
+```{r}
 outlier<-function(){
   mean<-median(Cell.Count$Cell_Count)
   sd<-sd(Cell.Count$Cell_Count)*2
@@ -286,11 +365,13 @@ Image height and width are variables that are taken from dimensions
 disseminated by your microscope camera's manufacturer. Please refer to their 
 documentation to calculate your FOV variable correctly.
 
-With the variables calculated, the following code uses these variables to 
-calculate cell density and adds the data into the "Cell.Count" data frame:
+With the variables calculated, the following "cell_density" uses these 
+variables to calculate cell density and adds the data into the "Cell.Count" 
+data frame:
 
-```{r,include=FALSE}
-cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
+```{r}
+cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
+                         volume = 1, total.volume = 5) {
   MCF <- filtration.area / FOV
   N <- x / images
   cyano <- (MCF * N) / volume
@@ -299,7 +380,8 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
 }
 ```
 ```{r}
-cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5)
+cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, 
+                         volume = 1, total.volume = 5)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 ```
 
@@ -329,268 +411,5 @@ pre-determined save directory:
 write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
 ```
 
+#Literature cited:
 
-# Output data from test images in the *cellcount* package
-
-```{r,echo=FALSE}
-display(final_img)
-Cell.Count
-```
-Test data results for *Microcystis* strain F-192
-
-
-```{r,include=FALSE}
-# clear environment and free unused memory
-rm(list=ls())
-gc()
-```
-
-
-```{r,include=FALSE}
-greyscale <- function(x, contrast = 2) {
-  x <- contrast * x
-  x <- x[, , 1] + x[, , 2] + x[, , 3]
-  x <- x / max(x)
-  x <- normalize(x, inputRange = c(0.1, 0.75))
-  return(x)
-}
-mapped <- function(x, threshold = 0.3) {
-  x <- as.matrix(x)
-  x[x < threshold] <- 0
-  return(x)
-}
-border <- function(x, y) {
-  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
-}
-countCells <- function(x) {
-  countAll <- max(x)
-  dims <- dim(x)
-  border1 <- border(x, dims)
-  ids <- unique(border1[which(border1 != 0)])
-  countInner <- countAll - length(ids)
-  return(countInner)
-}
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
-  if (removeEdgeCells) {
-    dims <- dim(image)
-    border1 <- border(image, dims)
-    ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
-    EBImage::colorLabels(inner, normalize = normalize)
-  } else {
-    EBImage::colorLabels(image, normalize = normalize)
-  }
-}
-image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
-  image2 <- fillHull(image1)
-  nf <- computeFeatures.shape(image2)
-  nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
-  return(image3)
-}
-cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
-  MCF <- filtration.area / FOV
-  N <- x / images
-  cyano <- (MCF * N) / volume
-  cyano_total <- cyano * total.volume
-  return(cyano_total)
-}
-```
-
-```{r,echo=FALSE}
-Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
-
-file_name<-paste0("img_")
-
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
-
-imgNames <- paste0(file_name, images_names)
-read_images <- lapply(images, readTIFF)
-img_transposed <- lapply(read_images,aperm,c(2,1,3))
-names(images) <- imgNames
-
-grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
-
-imagesConverted <- image_convert2(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-display(final_img)
-```
-
-```{r,echo=FALSE}
-for (z in 1:length(images)) {
-  imagesConverted <- image_convert2(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
-  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
-  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
-}
-
-Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-outlier<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
-  sd_neg<-(mean-sd)
-  sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
-  return(SD_range_detection)
-}
-Cell.Count$SD_range<-outlier()
-
-cell.total <- as.numeric(Cell.Count$Cell_Count)
-cell.total <- sum(cell.total)
-
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
-
-cell.den <- cell_density(cell.total, FOV = 0.027770534, images = 10, filtration.area = 213.8, volume = 0.5, total.volume =15)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
-
-cell.av<-(cell.total/10)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
-
-cell.mL<-(cell.den/15)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
-
-write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
-
-Cell.Count
-```
-Test data results for *Anabena* sp.
-
-
-```{r,include=FALSE}
-# clear environment and free unused memory
-rm(list=ls())
-gc()
-```
-
-
-```{r,include=FALSE}
-greyscale <- function(x, contrast = 2) {
-  x <- contrast * x
-  x <- x[, , 1] + x[, , 2] + x[, , 3]
-  x <- x / max(x)
-  x <- normalize(x, inputRange = c(0.1, 0.75))
-  return(x)
-}
-mapped <- function(x, threshold = 0.3) {
-  x <- as.matrix(x)
-  x[x < threshold] <- 0
-  return(x)
-}
-border <- function(x, y) {
-  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
-}
-countCells <- function(x) {
-  countAll <- max(x)
-  dims <- dim(x)
-  border1 <- border(x, dims)
-  ids <- unique(border1[which(border1 != 0)])
-  countInner <- countAll - length(ids)
-  return(countInner)
-}
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
-  if (removeEdgeCells) {
-    dims <- dim(image)
-    border1 <- border(image, dims)
-    ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
-    EBImage::colorLabels(inner, normalize = normalize)
-  } else {
-    EBImage::colorLabels(image, normalize = normalize)
-  }
-}
-image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- fillHull(image)
-  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
-  nf <- computeFeatures.shape(image2)
-  nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
-  return(image3)
-}
-cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
-  MCF <- filtration.area / FOV
-  N <- x / images
-  cyano <- (MCF * N) / volume
-  cyano_total <- cyano * total.volume
-  return(cyano_total)
-}
-```
-
-```{r,echo=FALSE}
-Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
-
-file_name<-paste0("img_")
-
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
-
-imgNames <- paste0(file_name, images_names)
-read_images <- lapply(images, readTIFF)
-img_transposed <- lapply(read_images,aperm,c(2,1,3))
-names(images) <- imgNames
-
-grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
-
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-display(final_img)
-```
-
-```{r,echo=FALSE}
-for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
-  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
-  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
-}
-
-Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-outlier<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
-  sd_neg<-(mean-sd)
-  sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
-  return(SD_range_detection)
-}
-Cell.Count$SD_range<-outlier()
-
-cell.total <- as.numeric(Cell.Count$Cell_Count)
-cell.total <- sum(cell.total)
-
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
-
-cell.den <- cell_density(cell.total, FOV = 0.00042, images = 10, filtration.area = 213.8, volume = 0.02, total.volume =2)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
-
-cell.av<-(cell.total/10)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
-
-cell.mL<-(cell.den/2)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
-
-write.csv(Cell.Count, paste0(savdir, "/Shewanella_test counts.csv"))
-
-Cell.Count
-```
-Test data results for *Shewanella* IRI-160
-
-
-# Literature cited:
