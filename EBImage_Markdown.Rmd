@@ -3,7 +3,7 @@ title: "Introduction to *cellcount*"
 author: "*T.E. Harman, M. Vandersea, D.E. Berthold, H.D. Laughinghouse, B. Boyd, K. Pokrzywinski*"
 date: "__/__/2022"
 abstract: >
-  The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
+  The ***cellcount*** package provides wrapper functions for  [***EBImage***](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 output: html_document
 ---
 
@@ -32,7 +32,7 @@ technology for open-source capabilities: accessibility and customization. A
 prior report released by Pokrzywinski et al. (2019) had outlined the 
 development of an automated cyanobacteria enumeration script using the 
 open-source programming language, R, along with several functions from the 
-R package *EBImage*. However, the previous presentation of 
+R package ***EBImage***. However, the previous presentation of 
 this script can be considered extremely difficult to grasp for inexperienced 
 R users. We utilized this script as a template for the development of an R 
 package, involving the reduction of code into simple functions, expanding 
@@ -66,17 +66,13 @@ library(raster)
 
 # Setting up directories/reading files:
 
-Next, generate a data frame for count data to be added into using the following
-code:
+To begin, we generate a data frame for the proceeding count data to be added 
+into using the following code:
 ```{r}
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 ```
 
-You'll need to generate a couple of directories; one for saving the unique
-color label images and another for CSV files. In this example, we are using 
-images of *Microcystis* sp. cells that are contained within the package as test
-data. Please note that your directory addresses will be different. We recommend 
-using a dedicated directory for *cellcount* results:
+Next, end-users will need to generate a couple of directories; one for saving the unique color label images and another for CSV files. In this example, we are using images of *Microcystis* sp. cells that are contained within the package as test data. Please note that your directory addresses will be different. We recommend using a dedicated directory for ***cellcount*** results:
 
 ```{r,message=FALSE}
 savdir <- ("file path for saving CSV data")
@@ -87,9 +83,7 @@ savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_dat
 image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
 ```
 
-Next, you'll need to read in the images you are interested in processing using
-the following code. Once again, your directories will be different and must be
-updated to the correct file address. However, in this example we will be using
+Next, end-users will need to read in the images you are interested in processing using the following code. Once again, your directories will be different and must be updated to the correct file address. However, in this example we will be using
 the provided test images from this package:
 
 ```{r,message=FALSE}
@@ -101,18 +95,15 @@ images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_mai
 images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
-In addition, you'll need to assign the file names to a vector along with adding
-in characterization to each file for easy organization:
+In addition, end-users will need to assign the file names to a vector; this provides characterization to each file for easy organization:
 
 ```{r}
 file_name<-paste0("F192_")
 ```
 
 Now we will "read" in the images that we are interested in analyzing. The
-following code outlines this step using the "readTIFF" function from the 
-*tiff* package. In addition, we'll need to re-orient the image as it's uploaded
-into the environment. The "readTIFF" function uploads images in a portrait 
-format - the "aperm" function reorients the uploaded image to a landscape format:
+following code outlines this step using the "*readTIFF*" function from the 
+***tiff*** package. In addition, we'll need to re-orient the image as it's uploaded into the environment. The "*readTIFF*" function uploads images in a portrait format - the "*aperm*" function reorients the uploaded image to a landscape format:
 
 ```{r, warning=FALSE}
 imgNames <- paste0(file_name, images_names)
@@ -127,7 +118,7 @@ names(images) <- imgNames
 
 Now that our images are within the R environment, we can begin to convert these
 images into useful data that R can use to process images. First, we begin by
-converting 24-bit images into 8-bit images using the "greyscale" function (see 
+converting 24-bit images into 8-bit images using the "*greyscale*" function (see 
 photo below). This function also has a built-in numerical contrast adjustment 
 that end-users can adjust:
 
@@ -145,8 +136,8 @@ grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 display(grey_images[[5]])
 ```
 
-Next, we will use the "mapped" function to turn the 8-bit image we just
-converted into a data matrix (using 'as.matrix') using the following code. 
+Next, we will use the "*mapped*" function to turn the 8-bit image we just
+converted into a data matrix (using "*as.matrix*") using the following code. 
 This also includes a pixel intensity threshold adjustment that end-users can 
 change; this removes any pixel that is under the threshold value to easily 
 separate the background from cells:
@@ -164,12 +155,10 @@ imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
 
 Before we analyze our images in bulk, we introduce here several functions
 that are required to take matrix data to count cells within images and to
-produce 'color-label' images. These include the following:
+produce "*color-label*" images. These include the following:
 
-**"countImages" function:** Displays converted microscopy images of distinct 
-cell counts subsequently from the image_convert function. Can use the "display" 
-function from EBImage to automatically generate the produced image from this 
-function.
+**"*countImages*" function:** Displays converted microscopy images of distinct 
+cell counts subsequently from the "*image_convert function*". End-users can use the "*display*" function from ***EBImage*** to visually generate the produced image from this function.
 
 ```{r}
 countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
@@ -185,9 +174,9 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
 }
 ```
 
-**"border" function:** Takes images to predict cells along a predetermined 
+**"*border*" function:** Takes images to predict cells along a predetermined 
 border in order to count cells within the predetermined border. Cells along the
-predetermined border are not counted, which is outlined in the "countCells"
+predetermined border are not counted, which is outlined in the "*countCells*"
 function.
 
 ```{r}
@@ -196,8 +185,8 @@ border <- function(x, y) {
 }
 ```
 
-**"countCells" function:** Takes information from a converted image and counts 
-cells within the image. This uses the "border" function to remove cells along 
+**"*countCells*" function:** Takes information from a converted image and counts 
+cells within the image. This uses the "*border*" function to remove cells along 
 the image border and only count cells within the image.
 
 ```{r}
@@ -211,7 +200,7 @@ countCells <- function(x) {
 }
 ```
 
-**"image_convert" function:** Takes a mapped image (i.e., data matrix) and 
+**"*image_convert*" function:** Takes a mapped image (i.e., data matrix) and 
 counts individual cells within an image. This is to be used with a single image 
 with cells that contains a single fluorescent dimension 
 (i.e. auto-fluorescence, DAPI, etc.). This is useful for analyzing images
@@ -229,12 +218,11 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
 }
 ```
 
-We also include a separate, yet similar function to "image_convert" called 
-"image_convert2". This function is ideally meant for filamentous or 
+We also include a separate, yet similar function to "*image_convert*" called 
+"*image_convert2*". This function is ideally meant for filamentous or 
 colonial-type cyanobacteria that are harder to discern with the standard 
-"image_convert" function. The difference between these functions are that 
-the "watershed" function from the EBImage package comes first in the outlined 
-function compared to the "image_convert" function.
+"*image_convert*" function. The difference between these functions are that 
+the "*watershed*" function from the ***EBImage*** package comes first in the outlined function compared to the "*image_convert*" function.
 
 ```{r}
 image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
@@ -249,12 +237,12 @@ image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, t
 ```
 
 In addition, set aside some code space to visually 
-analyze your images results. This could include adjusting the threshold
-from the "mapped" function, the contrast from the "greyscale" function 
-(if used), or could involve making adjustments to the "image_convert" function,
+analyze image results. This could include adjusting the threshold
+from the "*mapped*" function, the contrast from the "*greyscale*" function 
+(if used), or could involve making adjustments to the "*image_convert*" function,
 such as the width and height of the rectangular window, the pixel area
 threshold (i.e., removes cells or other objects under a certain pixel area), 
-or the tolerance and 'ext' variables. Observe your initial results as indicated
+or the tolerance and 'ext' variables. Observe the initial results as indicated
 below and make adjustments where necessary:
 
 ```{r}
@@ -266,11 +254,10 @@ display(final_img)
 
 # Analysis of images for producing count data:
 
-Once you have made necessary adjustments, use the following for-loop to
-analyze your images in bulk, one at a time. The for-loop uses the 
-"image_convert" function to produce unique color labels on cells within
+Once end-users have made necessary adjustments, use the following for-loop to
+analyze images in bulk from a directory, yet one at a time. The for-loop uses the "*image_convert*" function to produce unique color labels on cells within
 an image and to produce a final image showcasing these labels using the 
-"countImages" function. Finally, "countCells" is used to count the number of 
+"*countImages*" function. Finally, "*countCells*" is used to count the number of 
 unique color labels (i.e., cells). We also have integrated code to add these 
 count results to the data frame made earlier, and also to save each unique 
 color label image to the "image_savdir" directory:
@@ -288,7 +275,7 @@ for (z in 1:length(images)) {
 ```
 
 Data from the image analysis has been generated in our data frame "Cell.Count"
-that we previously made. We can use the following code to view our results:
+that we previously made. We can use the following code to view the current results:
 
 ```{r}
 Cell.Count
@@ -297,10 +284,8 @@ Cell.Count
 Some images that were initially taken may be too poor of quality or contain
 high background fluorescence, among other errors. The code below analyzes 
 outliers from the produced data, within a range of two standard deviations 
-above and below the median. The "outlier" function tags which images are
-out of this range and dictates a warning within our data frame, which is shown 
-below. This alerts the end-user to perhaps re-image a particular sample, or
-to investigate the error further.
+above and below the median. The "*outlier*" function tags which images are
+out of this range and dictates a warning within our data frame, "Cell.Count", which is shown below. This function's primary objective is to alert end-users of potential imaging/processing issues. This alerts the end-user to perhaps re-image a particular sample, or to investigate the error further, if any.
 
 ```{r}
 outlier<-function(){
@@ -320,7 +305,7 @@ Cell.Count
 ```
 
 In order to calculate cell density of these images, we can use the
-"cell.density" function that's built into the *cellcount* package. We first
+"*cell.density*" function that's built into the ***cellcount*** package. We first
 need to generate the total amount of cells counted from these images and
 add it to our existing data frame using the following code:
 
@@ -343,7 +328,7 @@ calculate this value:
 - Width of image field of view (μm)
 - Median cell diameter (μm)
 - Total number of images analyzed
-- Filtration area (mm^2)
+- Filtration area (mm<sup>2</sup>)
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
@@ -362,10 +347,10 @@ $W = width$
 $D = diameter$
 
 Image height and width are variables that are taken from dimensions 
-disseminated by your microscope camera's manufacturer. Please refer to their 
-documentation to calculate your FOV variable correctly.
+disseminated by the microscope camera's manufacturer. End-users must refer to 
+their camera documentation to calculate the FOV variable correctly.
 
-With the variables calculated, the following "cell_density" uses these 
+With the variables calculated, the following "*cell_density*" uses these 
 variables to calculate cell density and adds the data into the "Cell.Count" 
 data frame:
 

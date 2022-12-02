@@ -13,9 +13,17 @@ RA_Anabena<-subset(RA,Species=="Anabena")
 RA_Shewanella<-subset(RA,Species=="Shewanella")
 RA_E.coli<-subset(RA,Species=="E.coli")
 
+RA_F192[ nrow(RA_F192) + 1:6,] <- NA
+RA_F192$bot<-c(0,0,0,800000,800000,800000,1600000,1600000,1600000,2400000,2400000,2400000,3200000,3200000,3200000,4000000,4000000,4000000,4800000,4800000,4800000)
+RA_F192$top<-c(0,0,0,1200000,1200000,1200000,2400000,2400000,2400000,3600000,3600000,3600000,4800000,4800000,4800000,6000000,6000000,6000000,7200000,7200000,7200000)
 RA_F192$Script<-(RA_F192$Script/1000000)
 RA_F192$Visual<-(RA_F192$Visual/1000000)
 RA_F192$Microscope<-(RA_F192$Microscope/1000000)
+RA_F192$bot<-(RA_F192$bot/1000000)
+RA_F192$top<-(RA_F192$top/1000000)
+RA_F192$func1<-(sapply(RA_F192$bot, FUN = function(x){(x)}))
+RA_F192$func2<-(sapply(RA_F192$top, FUN = function(x){(x)}))
+RA_F192$num<-c(0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6)
 
 data.lm1<-lm(Visual~Script,data=RA_F192)
 summary(data.lm1)
@@ -210,9 +218,11 @@ F192_M<-ggplot(data=RA_F192, aes(x=Script,y=Microscope))+
         panel.border = element_rect(size=2))+
   scale_x_continuous(labels=function(x) format(x,scientific=FALSE))+
   scale_y_continuous(labels=function(x) format(x,scientific=FALSE))+
-  xlim(0,5)+
-  ylim(0,5)+
-  geom_abline(slope=1,intercept=0,color="grey40",size=1.5,alpha=0.4)+
+  geom_ribbon(aes(x = num,
+                  ymin = func1,
+                  ymax = func2),
+              fill="grey80")+
+  geom_abline(slope=1,intercept=0,size=1.5,alpha=0.4)+
   geom_abline(slope=coef(data.lm6)[["Script"]],
               intercept=coef(data.lm6)[["(Intercept)"]],
               linetype=2,
