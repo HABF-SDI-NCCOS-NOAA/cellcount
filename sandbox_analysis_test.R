@@ -11,14 +11,14 @@ gc()
 
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 
-file_name<-paste0("E.coli_") #Change the name of species analyzed here
+file_name<-paste0("D0_Treatment_") #Change the name of species analyzed here
 
 #Change directories here
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/CSV_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_DAPI/1C/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/1C/"
+savdir <- ("C:/Users/Tyler.Harman/Desktop/DinoSHIELD/Total_Bacteria/CSV_data/")
+image_savdir <- ("C:/Users/Tyler.Harman/Desktop/DinoSHIELD/Total_Bacteria/Convert_Images/Day_0/Treatment/4_mesoJ/")
+images <- list.files("C:/Users/Tyler.Harman/Desktop/DinoSHIELD/Total_Bacteria/Quantitative_Images/Day_0/Treatment/4_mesoJ/"
                      , pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/quantitative_images/E.coli_100x_DAPI/1C/"
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/DinoSHIELD/Total_Bacteria/Quantitative_Images/Day_0/Treatment/4_mesoJ/"
                            , pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
@@ -27,9 +27,9 @@ img_transposed <- lapply(read_images,aperm,c(2,1,3))
 names(images) <- imgNames
 
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-display(grey_images[[5]]) #visualize contrast/brightness adjustment here
+display(grey_images[[10]]) #visualize contrast/brightness adjustment here
 
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3) #background intensity threshold adjustment
+imagesMapped <- lapply(grey_images, mapped, threshold = 0.2) #background intensity threshold adjustment
 
 
 #IMAGE TESTING - do you need to make variable adjustments?
@@ -66,15 +66,15 @@ cell.total <- sum(cell.total)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
 
 #Change variables outlined below
-cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 0.02, total.volume = 2)
+cell.den <- cell_density(cell.total, FOV = 0.00084, images = 10, filtration.area = 213.8, volume = 4, total.volume = 5)
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 
-cell.av<-(cell.total/10)
+cell.av<-(cell.total/10) #change this on number of images
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 
-cell.mL<-(cell.den/2) #change this via total volume
+cell.mL<-(cell.den/5) #change this via total volume
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
-write.csv(Cell.Count, paste0(savdir, "/E.coli_1C counts.csv")) #Change this CSV file name
+write.csv(Cell.Count, paste0(savdir, "/D0_Treatment4_mesoJ counts.csv")) #Change this CSV file name
 
 beepr::beep(sound=2) #analysis complete
