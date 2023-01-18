@@ -7,24 +7,23 @@
 countImages(image, normalize = TRUE, removeEdgeCells = TRUE)
 }
 \arguments{
-\item{image}{A tif image}
+\item{image}{A processed image variable from the "image_convert" function}
 
-\item{normalize}{if TRUE normalizes the resulting color image}
+\item{normalize}{if TRUE, normalizes the resulting color image}
 
 \item{removeEdgeCells}{automatically removes cells from along the image
-border}
+border using a true (T) or false (F) input}
+}
+\value{
+Produces a unique color-label image. Users can use the "display" function to view the image (see EBImage for more details) as well as save the image using the "writeImage" function (see readTIFF for more details).
 }
 \description{
-Displays converted microscopy images of distinct cell counts subsequently from the image_convert function.
-Can use the "display" function from EBImage to automatically generate the
-produced image from this function.
+Displays converted microscopy images of distinct cell counts subsequently from the "image_convert" function.
 }
 \examples{
-img <- list.files("data/Karlodinium",pattern="tif",full.name=T)
-img1 <- lapply(img[[1]], readTIFF)
-img2 <- lapply(img1, greyscale, contrast = 2)
-img3 <- lapply(img2, mapped, threshold = 0.3)
-img4 <- image_convert(img3,w=15,h=25, offset = 0.01,areathresh=150)
-final_img <- countImages (img4, normalize = T, removeEdgeCells = T)
-display(final_img)
+images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+grey_images <- greyscale(images,contrast=2)
+images_mapped <- mapped(grey_images,threshold=0.3)
+imagesConverted <- image_convert(imagesMapped[[1]],w=10,h=10,offset=0.001,areathresh=50,tolerance=0.8,ext=1)
+countImages(imagesConverted, normalize = T, removeEdgeCells = T)
 }

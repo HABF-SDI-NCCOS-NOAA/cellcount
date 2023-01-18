@@ -7,9 +7,14 @@
 mapped(x, threshold = 0.3)
 }
 \arguments{
-\item{x}{a matrix mapping conversion function}
+\item{x}{a grey scale image variable}
 
 \item{threshold}{a numerical value of pixel intensity}
+}
+\value{
+Converts an grey scale image to a data matrix, in a pixel by
+
+pixel format
 }
 \description{
 Takes a grey-scale/8-bit image to convert to a data matrix,
@@ -17,8 +22,7 @@ where data under the numerical pixel intensity threshold is removed.
 This function is needed for the use of the "image_convert" function.
 }
 \examples{
-img <- list.files("data/Karlodinium",pattern="tif",full.name=T)
-img1 <- lapply(img[[1]], readTIFF)
-img2 <- lapply(img1, greyscale, contrast = 2)
-img3 <- lapply(img2, mapped, threshold = 0.3)
+images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+grey_images <- greyscale(images,contrast=2)
+mapped(grey_images,threshold=0.3)
 }

@@ -27,7 +27,7 @@ img_transposed <- lapply(read_images,aperm,c(2,1,3))
 names(images) <- imgNames
 
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-display(grey_images[[10]]) #visualize contrast/brightness adjustment here
+display(grey_images[[5]]) #visualize contrast/brightness adjustment here
 
 imagesMapped <- lapply(grey_images, mapped, threshold = 0.2) #background intensity threshold adjustment
 

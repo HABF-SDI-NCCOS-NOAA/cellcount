@@ -7,21 +7,20 @@
 countCells(x)
 }
 \arguments{
-\item{x}{converted image variable}
+\item{x}{converted image variable using the "image_convert" function}
 }
 \value{
-Counting cells within \code{x}
+Counts cells within an processed image
 }
 \description{
 Takes information from a converted image and counts cells within the image.
-This uses the "border" function to remove cells along the image border and
-only count cells within the image. This creates a more accurate cell count.
+This remove cells along the image border and only count cells within the image
+in order to produce a more accurate cell count.
 }
 \examples{
-img <- list.files("data/Karlodinium",pattern="tif",full.name=T)
-img1 <- lapply(img[[1]], readTIFF)
-img2 <- lapply(img1, greyscale, contrast = 2)
-img3 <- lapply(img2, mapped, threshold = 0.3)
-img4 <- image_convert(img3,w=15,h=25, offset = 0.01,areathresh=150)
-countCells(img4)
+images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+grey_images <- greyscale(images,contrast=2)
+images_mapped <- mapped(grey_images,threshold=0.3)
+imagesConverted <- image_convert(imagesMapped[[1]],w=10,h=10,offset=0.001,areathresh=50,tolerance=0.8,ext=1)
+countCells(imagesConverted)
 }

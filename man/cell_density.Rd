@@ -6,43 +6,46 @@
 \usage{
 cell_density(
   x,
-  height = 207.5,
-  width = 155.6,
-  diameter = 2.5,
+  FOV = 0.0726,
   images = 10,
-  filtration.area = 491,
+  filtration.area = 213.8,
   volume = 1,
-  total.volume = 100
+  total.volume = 5
 )
 }
 \arguments{
 \item{x}{count results from processed image}
 
-\item{height}{height of image field of view in μm (comes from camera settings)}
-
-\item{width}{width of image field of view in μm (comes from camera settings)}
-
-\item{diameter}{median cell diameter in μm}
+\item{FOV}{field of view from camera specs in square millimeters}
 
 \item{images}{total number of fields}
 
-\item{filtration.area}{filtration area in mm2}
+\item{filtration.area}{filtration area in square millimeters}
 
 \item{volume}{volume filtered per field in mL}
 
 \item{total.volume}{total sample volume in mL}
 }
+\value{
+Calculates the density of cells within your original sample, based on the inputted data
+}
 \description{
 Takes count results from processed images to calculate cell density based
-on camera field of view settings (inputted by end-user) and amount of cells
-filtered that the image is visualizing.
+on camera field of view settings (inputted by end-user), number of images, filter area, volumes,
+and amount of cells filtered that the image is visualizing.
 }
 \examples{
-img <- list.files("data/Shewanella",pattern="tif",full.name=T)
-img1 <- lapply(img[[1]], readTIFF)
-img2 <- lapply(img1, greyscale, contrast = 2)
-img3 <- lapply(img2, mapped, threshold = 0.3)
-img4 <- image_convert(img3,w=15,h=25, offset = 0.01,areathresh=150)
-cell.total <- countCells(img4)
-cell_density(cell.total,height=203.2,width=166.4,diameter=2.5,images=15,filtration.area=491,volume=1,total.volume=100)
+Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+images_names <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = F)
+grey_images <- greyscale(images,contrast=2)
+images_mapped <- mapped(grey_images,threshold=0.3)
+imagesConverted <- image_convert(imagesMapped[[1]],w=10,h=10,offset=0.001,areathresh=50,tolerance=0.8,ext=1)
+count <- countCells(imagesConverted)
+Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[1]], count)
+Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
+cell.total <- as.numeric(Cell.Count$Cell_Count)
+cell.total <- sum(cell.total)
+cell_density(cell.total,FOV = 0.00084,images = 10,filtration.area = 213.8,volume = 1,total.volume = 2)
+
 }

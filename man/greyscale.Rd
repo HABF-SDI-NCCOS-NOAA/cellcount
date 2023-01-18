@@ -11,13 +11,15 @@ greyscale(x, contrast = 2)
 
 \item{contrast}{a numerical value for contrast adjustment}
 }
+\value{
+An image variable gets converted from RGB scale to grey scale
+}
 \description{
 Takes images to adjust the contrast and converts them to grey-scale/8-bit.
 This function is needed to use the "mapping" function to properly
 convert images to data-frames.
 }
 \examples{
-img <- list.files("data/Karlodinium",pattern="tif",full.name=T)
-img1 <- lapply(img[[1]], readTIFF)
-img2 <- lapply(img1, greyscale, contrast = 2)
+images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+greyscale(images,contrast=2)
 }

@@ -6,8 +6,12 @@
 #'
 #' @param x an image variable
 #' @param contrast a numerical value for contrast adjustment
+#' 
+#' @return An image variable gets converted from RGB scale to grey scale
+#' @export
 #'
-#' @examples
+#' @examples images <- list.files("C:/Users/Desktop/Test_Images/",pattern = "tif", full.name = T)
+#' @examples greyscale(images,contrast=2)
 
 greyscale <- function(x, contrast = 2) {
   x <- contrast * x
