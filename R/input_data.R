@@ -18,6 +18,8 @@ input_data<-function(){
   tolerance1<<-textConnection('tolerance2','wr',local=FALSE)
   ext1<<-textConnection('ext2','wr',local=FALSE)
   areathresh1<<-textConnection('areathresh2','wr',local=FALSE)
+  rec_width1<<-textConnection('rec_width2','wr',local=FALSE)
+  rec_height1<<-textConnection('rec_height2','wr',local=FALSE)
   
   ui1 = fixedPage(
     useShinyjs(),
@@ -25,7 +27,8 @@ input_data<-function(){
     div(navlistPanel(
       "Cellcount - Image Analysis UI",
       " ",
-      tabPanel("Directories",
+      " ",
+      tabPanel(h4("Directories"),
                h3("   "),
                fixedRow(
                  column(2,offset=2,shinyDirButton('path1','CSV save directory','Please select a directory to save CSV files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
@@ -37,7 +40,7 @@ input_data<-function(){
                  column(2,offset=2,shinyDirButton('path3','Image analysis directory','Please select a directory containing image files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
                )
       ),
-      tabPanel("Analysis Type",
+      tabPanel(h4("Analysis Type"),
                h3("   "),
                fixedRow(
                  column(8,offset=2,selectInput("selectData",
@@ -45,56 +48,67 @@ input_data<-function(){
                                                choices=list("Single-cell","Filamentous","Colonial"),selected="Single-cell"))
                )
       ),
-      tabPanel("Data inputs",
+      tabPanel(h4("Data inputs"),
+               h3("   "),
                fixedRow(
-                 column(2,offset=2,actionButton("run4", "Species name", class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("clipboard")))
+                 column(2,offset=2,actionButton("run4", "Species name", class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("clipboard")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run6", 'Threshold adjustment', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("gear")))
+                 column(2,offset=2,actionButton("run6", 'Threshold adjustment', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("gear")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run7", 'Field of View', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("magnifying-glass")))
+                 column(2,offset=2,actionButton("run7", 'Field of View', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("magnifying-glass")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run8", 'Number of images', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("image")))
+                 column(2,offset=2,actionButton("run8", 'Number of images', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("image")))
                ),
                fixedRow(
                  column(2,offset=2,actionButton("run9", 'Volume filtered', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("vials")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run10", 'Total volume', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("flask")))
+                 column(2,offset=2,actionButton("run10", 'Total volume', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("flask")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run11", 'Contrast adjustment', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("gears")))
+                 column(2,offset=2,actionButton("run11", 'Contrast adjustment', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("gears")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run12", 'Filtration area', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("layer-group")))
+                 column(2,offset=2,actionButton("run12", 'Filtration area', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("layer-group")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run14", 'Object tolerance', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("circle-exclamation")))
+                 column(2,offset=2,actionButton("run17", 'Rectangular window width', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("arrows-left-right")))
+               ),
+               fixedRow(
+                 column(2,offset=2,actionButton("run18", 'Rectangular window height', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("arrows-up-down")))
+               ),  
+               fixedRow(
+                 column(2,offset=2,actionButton("run14", 'Object tolerance', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("circle-exclamation")))
                ),               
                fixedRow(
-                 column(2,offset=2,actionButton("run15", 'EXT input', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("globe")))
+                 column(2,offset=2,actionButton("run15", 'EXT input', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("globe")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run16", 'Cell area threshold', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("crop-simple")))
+                 column(2,offset=2,actionButton("run16", 'Cell area threshold', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("crop-simple")))
                ),
                fixedRow(
-                 column(2,offset=2,actionButton("run13", 'CSV file name', class = "btn-success",style='height:30px;width:350px;font-size:120%',icon=icon("pen")))
+                 column(2,offset=2,actionButton("run13", 'CSV file name', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("pen")))
                )
       ),
-      tabPanel("Completion",
+      tabPanel(h4("Completion"),
                h3("   "),
                h3("   "),
                fixedRow(
                  column(2,offset=2,actionButton("close", "Submit data entries",class = "btn-danger",style='height:35px;width:350px;font-size:120%',icon=icon("check")))
                )
-      )
+      ),
+      "  ",
+      "  "
     ),
     "  ",
     "  ",
     "  ",
-    column(4, "Developed by NOAA NCCOS")
+    fixedRow(
+      column(4, "Developed by NOAA NCCOS")
+    )
     )
   )
   server1 = function(input, output, session) {
@@ -215,6 +229,18 @@ input_data<-function(){
                              inputPlaceholder = 'Example: 250',
                              size="m")
     })
+    observeEvent(input$run17, {
+      shinyalert::shinyalert('Enter a rectangular window width value',
+                             type='input',callbackR=recwidth, showCancelButton = TRUE,
+                             inputPlaceholder = 'Example: 17',
+                             size="m")
+    })
+    observeEvent(input$run18, {
+      shinyalert::shinyalert('Enter a rectangular window height value',
+                             type='input',callbackR=recheight, showCancelButton = TRUE,
+                             inputPlaceholder = 'Example: 17',
+                             size="m")
+    })
     image_name<-function(value4) {
       sink(image_names1)
       save_name<-cat(value4)
@@ -297,6 +323,20 @@ input_data<-function(){
       close(areathresh1)
       areathresh2<<-as.numeric(areathresh2)
     }
+    recwidth<-function(value17) {
+      sink(rec_width1)
+      save_recwidth<-cat(value17)
+      sink()
+      close(rec_width1)
+      rec_width2<<-as.numeric(rec_width2)
+    }
+    recheight<-function(value18) {
+      sink(rec_height1)
+      save_recheight<-cat(value18)
+      sink()
+      close(rec_height1)
+      rec_height2<<-as.numeric(rec_height2)
+    }
     observeEvent(input$close, {
       js$closeWindow()
       stopApp()
@@ -304,7 +344,7 @@ input_data<-function(){
   }
   #shinyApp(ui = ui1, server = server1)
   runGadget(ui1, server1, viewer = dialogViewer("cellcount Image Analysis Interface",
-                                                width = 800, height = 2000))
+                                                width = 800, height = 1500))
   
   Cell.Count <<- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
   images <<- list.files(image_analysis, pattern = "tif", full.name = T)
