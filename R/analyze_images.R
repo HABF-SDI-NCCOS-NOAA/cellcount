@@ -7,6 +7,7 @@ analyze_images<-function(){
   library(shinyalert)
   library(shinyFiles)
   library(shinyjs)
+  library(lubridate)
   
   jscode <- "shinyjs.closeWindow = function() { window.close(); }"
   
@@ -32,6 +33,6 @@ analyze_images<-function(){
     })
   }
   runGadget(ui, server, viewer = dialogViewer("cellcount Image Analysis Interface",
-                                              width = 400, height = 100))
+                                              width = 400, height = 200))
   
 }

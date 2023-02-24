@@ -49,6 +49,15 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
   image3 <- rmObjects(image2, nr)
   return(image3)
 }
+image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- fillHull(image1)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
 mapped <- function(x, threshold = 0.3) {
   x <- as.matrix(x)
   x[x < threshold] <- 0
