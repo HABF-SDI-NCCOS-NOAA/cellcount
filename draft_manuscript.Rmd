@@ -43,9 +43,9 @@ extensive training and materials. This leads to the suggestion of the need for a
 
 # Overview of functions
 
-The ***cellcount*** package is an open-source tool that can be accessed by researchers for use in the computing language R. Readers should note that the Bioconductor package ***EBImage*** [@Pau2010], ***tiff*** [@Urbanek2022], ***raster*** (REF), and ***pixmap*** [@Bivand2021] packages are needed for use of this toolset for accurate data collection.
+The ***cellcount*** package is an open-source tool that can be accessed by researchers for use in the computing language R. Readers should note that the Bioconductor package ***EBImage*** [@Pau2010], ***tiff*** [@Urbanek2022], ***raster*** [@Hijmans2023], and ***pixmap*** [@Bivand2021] packages are needed for use of this toolset for accurate data collection.
 
-The ***cellcount*** package can be installed locally and used within the RStudio environment. The ***cellcount*** functions are to be used in sequential order, as outlined in the *sandbox_analysis_test.R* script embedded within the ***cellcount*** package. Once image files and save directories have been identified, users can begin to upload their images using ***tiff*** package functions (see *readTIFF*). From here, images within the R environment must be converted into formats that R can use to process images. The *greyscale* function converts 24-bit images (RGB) into 8-bit images, and contains a built-in numerical contrast adjustment.
+The ***cellcount*** package can be installed locally and used within the [RStudio](https://posit.co/download/rstudio-desktop/) environment. The ***cellcount*** functions are to be used in sequential order, as outlined in the *sandbox_analysis_test.R* script embedded within the ***cellcount*** package. Once image files have been identified, users can begin to upload their images using ***tiff*** package functions (see *readTIFF*). From here, images within the R environment must be converted into formats that R can use to process images. The *greyscale* function converts 24-bit images (RGB) into 8-bit images, and contains a built-in numerical contrast adjustment.
 
 ```{r,include=FALSE}
 library(EBImage)
@@ -80,7 +80,7 @@ grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 display(grey_images[[5]])
 ```
 
-The *mapped* function is used to turn 8-bit images into a data matrix from the dimensions of the initial image, using the "*as.matrix*" function (see the ***data.table*** package), and includes a pixel intensity threshold adjustment. This removes any pixel that is under the threshold value to easilyseparate the background from cells.
+The *mapped* function is used to turn 8-bit images into a data matrix from the dimensions of the initial image, using the "*as.matrix*" function (see the ***data.table*** package), and includes a pixel intensity threshold adjustment. This removes any pixel that is under the threshold value to easily separate the background from cells.
 
 ```{r, message=FALSE}
 mapped <- function(x, threshold = 0.3) {
@@ -189,11 +189,21 @@ kable(Cell.Count, caption = "Analyzed results from test images of *Microcystis* 
 
 # Graphical user interface using Shiny apps
 
-Informal discussions with researchers ignited the development of a graphical user interface (GUI) using Shiny apps, paired with functions from the ***cellcount*** package. This results in the use of two functions, *input_data* and *analyze images*. These require the ***shiny*** [@Chang2022], ***shinyalert*** [@1Attali2021], ***shinyFiles*** [@Pedersen2022], ***shinyjs*** [@2Attali2021], and ***beepr*** [@Baath2018] libraries.
+Informal discussions with researchers ignited the development of a graphical user interface (GUI) using Shiny apps, paired with functions from the ***cellcount*** package. This results in the use of two functions, *input_data* and *analyze images*, to run the entire analysis process as outlined in the *sandbox_analysis_test.R* script. In addition to packages required by ***cellcount***, these GUIs require the ***shiny*** [@Chang2022], ***shinyalert*** [@1Attali2021], ***shinyFiles*** [@Pedersen2022], ***shinyjs*** [@2Attali2021], and ***beepr*** [@Baath2018] libraries.
 
-*input_data* uses a Shiny app UI for end-users to easily fill out the needed information in order to correctly label analyzed images, provide numerical inputs for variables, and easily select directories containing images and saving data.
+*input_data* uses a Shiny app UI for end-users to easily fill out the needed information in order to correctly label analyzed images, provide numerical inputs for variables, select image analysis type, and easily select directories containing images and saving data. The UI format is a simple approach, with tabs outlined on the left-hand side of the interface for its respective purpose (i.e., directory selection, analysis type selection, etc.). Each tab contains interactive buttons or drop-down menus for users to enter in the respective information or make appropriate selections for their analysis needs. Shiny directory buttons provide users a simple and familiar interface to select appropriate folders containing images or to set up save directories. Alert modals (see ***shinyalert***) are used for users to interact and provide information in text format, with helpful dialog to keep users organized and informed of the information needed. Once all information is provided, users select the "Completion" tab and click the "submit data entries" button to complete the data input process.
 
+(INSERT IMAGES OF *input_data* SHINY APP HERE)
 
+*analyze_images* uses a simplistic Shiny UI which consists of two buttons, one to run the analysis and the other to close the UI interface. 
+
+# Limitiations and warnings
+
+# Conclusions
+
+# Acknowledgements
+
+# Literature Cited
 
 ---
 references:
@@ -654,4 +664,75 @@ references:
         - 4
     title: 'beepr: Easily Play Notification Sounds on any Platform'
     URL: https://cran.r-project.org/web/packages/beepr/index.html
+    
+  - type: package
+    id: Hijmans2023
+    author:
+      - family: Hijmans
+        given: R.J
+      - family: van Etten
+        given: J.
+      - family: Sumner
+        given: M.
+      - family: Cheng
+        given: J.
+      - family: Baston
+        given: D.
+      - family: Bevan
+        given: A.
+      - family: Bivand
+        given: R.
+      - family: Busetto
+        given: L.
+      - family: Canty
+        given: M.
+      - family: Fasoli
+        given: B.
+      - family: Forrest
+        given: D.
+      - family: Ghosh
+        given: A.
+      - family: Golicher
+        given: D.
+      - family: Gray
+        given: J.
+      - family: Greenburg
+        given: J.A.
+      - family: Hiemstra
+        given: P.
+      - family: Hingee
+        given: K.
+      - family: Ilich
+        given: A.
+      - family: Karney
+        given: C.
+      - family: Mattiuzzi
+        given: M.
+      - family: Mosher
+        given: S.
+      - family: Naimi
+        given: B.
+      - family: Nowosad
+        given: J.
+      - family: Pebesma
+        given: E.
+      - family: Lamigueiro
+        given: O.P.
+      - family: Racine
+        given: E.B.
+      - family: Rowlingson
+        given: B.
+      - family: Shortridge
+        given: A.
+      - family: Venables
+        given: B.
+      - family: Wueest
+        given: R.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 16
+    title: 'raster: Geographic Data Analysis and Modeling'
+    URL: https://cran.r-project.org/web/packages/raster/index.html
 ...
