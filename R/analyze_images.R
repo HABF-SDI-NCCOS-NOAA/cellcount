@@ -1,6 +1,12 @@
 #' Analyze Images
 #'
-#'
+#' Brings in data entered from the "input_data" function and automatically runs a script to analyze images
+#' pertaining to cells from fluorescent microscopy images. This uses a Shiny user-interface, where two buttons
+#' are available to interact with. One button "Run Image Analysis" runs the analysis script while the "Close Window"
+#' button closes the Shiny interface.
+#' 
+#' @return Runs an automatic image analysis
+#' @export
 
 analyze_images<-function(){
   library(shiny)

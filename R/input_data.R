@@ -1,3 +1,13 @@
+#' Input Data
+#'
+#' This function provides a Shiny user-interface to easily input data needed for fluorescent microscopy image analysis
+#' outlined in *cellcount*. This Shiny app contains several tabs for data input, directory selection, etc. Users must close
+#' the app by selecting the 'Completion' tab followed by 'Submit data entries' for all entered data to be exported into 
+#' the local R environment.
+#' 
+#' @return Data input user-interface for *cellcount* image analysis
+#' @export
+
 input_data<-function(){
   library(shiny)
   library(shinyalert)
