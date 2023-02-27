@@ -575,6 +575,23 @@ Cell.Count
 Test data results for *Shewanella* IRI-160
 
 
+# Shiny app user-interface for ***cellcount*** analysis
+
+Several informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
+to utilize the ***cellcount*** tool. The following overview uses ***Shiny*** apps to enter input data and run image analyses. 
+
+The *input_data* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
+and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization. Once all data has been
+provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export 
+data to the local R environment.
+
+(SHOW UI IMAGES HERE)
+
+*analyze_images* is a simple UI that contains two interactive buttons. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the previous function. Once the completion sound has been played, users can click the "Close window" button to exit the UI. Users can review the processed data in their respective directories.
+
+(SHOW UI IMAGE HERE) 
+
+
 # Literature cited:
 
 Wetzel, RG and Likens, GE. 1991. Limnological Analyses, Second Edition. Springer-
