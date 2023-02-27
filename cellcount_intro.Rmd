@@ -1,7 +1,7 @@
 ---
 title: "Introduction to *cellcount* - Draft vignette"
 author: "*T.E. Harman, M. Vandersea, D.E. Berthold, H.D. Laughinghouse, B. Boyd, K. Pokrzywinski*"
-date: "12/15/2022"
+date: "02/27/2023"
 abstract: >
   The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 output: html_document
@@ -258,27 +258,13 @@ calculate this value:
 - Total counts (generated previously)
 - Height of image field of view (μm)
 - Width of image field of view (μm)
-- Median cell diameter (μm)
 - Total number of images analyzed
-- Filtration area (mm^2)
+- Filtration area (mm<sup>2</sup>)
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
-Field of view (FOV) is an important variable calculated from image height,
-image width, and cell diameter variables. The following equation is listed
-below:
-
-$FOV = HW - 2D(H+W)+4D^{2}$
-
-Where:
-
-$H = height$
-
-$W = width$
-
-$D = diameter$
-
-Image height and width are variables that are taken from dimensions 
+Field of view (FOV - mm<sup>2</sup>) is an important variable calculated from image height and
+image width. Image height and width are variables that are taken from dimensions 
 disseminated by your microscope camera's manufacturer. Please refer to their 
 documentation to calculate your FOV variable correctly.
 
@@ -594,9 +580,7 @@ Test data results for *Shewanella* IRI-160
 Wetzel, RG and Likens, GE. 1991. Limnological Analyses, Second Edition. Springer-
 Verlag. 391 pp.
 
-Gregoire, P, Fuchs, F, Sklyar, O, Boutros, M, and Huber, W.
-2010. EBImage - an R package for image processing with applications to cellular
-phenotypes. Bioinformatics, 26(7), pp. 979-981, 10.1093/bioinformatics/btq046
+Pau, G, Fuchs, F, Sklyar, O, Boutros, M, Huber, W. 2010. EBImage—an R package for image processing with applications to cellular phenotypes, Bioinformatics, 26(7): 979–981, https://doi.org/10.1093/bioinformatics/btq046
 
 Pokrzywinski, K, Boyd, B, Smith, J. 2019. A High-throughput Method for Counting 
 Cyanobacteria Using Fluorescence Microscopy. ERDC TR-19-21.
