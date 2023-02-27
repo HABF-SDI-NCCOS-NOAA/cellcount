@@ -1,7 +1,7 @@
 ---
 title: "Introduction to *cellcount*"
 author: "*T.E. Harman, M. Vandersea, D.E. Berthold, H.D. Laughinghouse, B. Boyd, K. Pokrzywinski*"
-date: "__/__/2022"
+date: "02/27/2023"
 abstract: >
   The ***cellcount*** package provides wrapper functions for  [***EBImage***](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 output: html_document
@@ -326,27 +326,13 @@ calculate this value:
 - Total counts (generated previously)
 - Height of image field of view (μm)
 - Width of image field of view (μm)
-- Median cell diameter (μm)
 - Total number of images analyzed
 - Filtration area (mm<sup>2</sup>)
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
-Field of view (FOV) is an important variable calculated from image height,
-image width, and cell diameter variables. The following equation is listed
-below:
-
-$FOV = HW - 2D(H+W)+4D^{2}$
-
-Where:
-
-$H = height$
-
-$W = width$
-
-$D = diameter$
-
-Image height and width are variables that are taken from dimensions 
+Field of view (FOV - mm<sup>2</sup>) is an important variable calculated from image height and
+image width. Image height and width are variables that are taken from dimensions 
 disseminated by the microscope camera's manufacturer. End-users must refer to 
 their camera documentation to calculate the FOV variable correctly.
 
@@ -395,6 +381,4 @@ pre-determined save directory:
 ```{r}
 write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
 ```
-
-# Literature cited:
 
