@@ -10,15 +10,12 @@ author:
   - name: Mark W. Vandersea
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
     
-  - name: David E. Berthold
-    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+#  - name: David E. Berthold
+#    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
   
-  - name: H. Dail Laughinghouse
-    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
-    orcid_id: 0000-0003-1018-6948
-  
-  - name: Brandon Boyd
-    affiliation: U.S. Army Corps of Engineers, Engineer Research and Development Center, Vicksburg, MS 39180, USA
+#  - name: H. Dail Laughinghouse
+#    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+#    orcid_id: 0000-0003-1018-6948
   
   - name: Kaytee Pokrzywinski
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
