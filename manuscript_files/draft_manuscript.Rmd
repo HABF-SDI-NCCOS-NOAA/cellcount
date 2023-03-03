@@ -194,11 +194,11 @@ Informal discussions with researchers ignited the development of a graphical use
 
 *input_data* uses a Shiny app UI for end-users to easily fill out the needed information in order to correctly label analyzed images, provide numerical inputs for variables, select image analysis type, and easily select directories containing images and saving data. The UI format is a simple approach, with tabs outlined on the left-hand side of the interface for its respective purpose (i.e., directory selection, analysis type selection, etc.). Each tab contains interactive buttons or drop-down menus for users to enter in the respective information or make appropriate selections for their analysis needs. Shiny directory buttons provide users a simple and familiar interface to select appropriate folders containing images or to set up save directories. Alert modals (see ***shinyalert***) are used for users to interact and provide information in text format, with helpful dialog to keep users organized and informed of the information needed. Once all information is provided, users select the "Completion" tab and click the "submit data entries" button to complete the data input process.
 
-(INSERT IMAGES OF *input_data* SHINY APP HERE)
+![Graphical user interface of the 'input_data' function using Shiny](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
 
 *analyze_images* uses a simplistic Shiny UI which consists of two buttons, one to run the analysis and the other to close the UI interface. Once the proper data has been entered from the *input_data* function, users simply click the "Run Image Analysis" button to begin. Sounds from the ***beepr*** package alert users of completion of the analysis, where the "Close window" button exits the UI window. Users can navigate to their specific directories to find analyzed images and related .csv files for their review.
 
-(INSERT IMAGE OF *analyze_images* SHINY APP HERE)
+![Graphical user interface of the 'analyze_images' function using Shiny](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
 
 # Limitiations and warnings
 
