@@ -9,10 +9,6 @@ Author: Tyler Harman [aut,cre]
   Kaytee Pokrzywinski [aut,cre]
 Maintainer: Tyler Harman <tyler.harman@noaa.gov>
 Depends: R (>= 4.2.1), nlme
-Suggests: EBImage
-          tiff
-          pixmap
-          beepr
 Description: The cellcount package is a continuation of the report outlined in Pokrzywinski et al. 2019 and simplfies the quantification of bacteria and cyanobacteria via flourescence microscopy. Functions within this package deconstruct images to assess individual cells, generate cell counts, and assess overall cell density from samples. In addition, additional tools are presented in this package using R Shiny interfaces to demonstrate ease-of-use for researchers not familiar with the R environment.
 License: GPL (>= 2)
 Roxygen: list(markdown = TRUE)
