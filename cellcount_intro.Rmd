@@ -1,7 +1,7 @@
 ---
 title: "Introduction to *cellcount* - Draft vignette"
-author: "*T.E. Harman, M. Vandersea, D.E. Berthold, H.D. Laughinghouse, B. Boyd, K. Pokrzywinski*"
-date: "02/27/2023"
+author: "*T.E. Harman, M. Vandersea, K. Pokrzywinski*"
+date: "04/19/2023"
 abstract: >
   The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 output: html_document
@@ -13,25 +13,30 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Getting started:
 
-*cellcount* is an R package distributed as part of the [Bioconductor](http://bioconductor.org) project. To install the package, start R and enter:
+*cellcount* is an R package distributed freely by NOAA NCCOS HAB-F on [GitHub](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories) and uses components in the RStudio IDE program. Make sure to install both the latest version of R and RStudio.
 
-```{r, message=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
-if (!require("cellcount")) {
-  BiocManager::install("cellcount")
-}
+To get started with *cellcount*, users must make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package'. You should now have the *cellcount* package installed. Use the following code to bring *cellcount* into the R environment:
+
+```{r}
 library(cellcount)
 ```
 
-The following packages are required. Please install and bring them into the R
-environment: 
+In addition, the following packages are required to use functions within *cellcount*:
+
+- *EBImage*
+- *tiff*
+- *pixmap*
+- *raster*
+- *beepr*
+
+*EBImage* uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
+
 ```{r, message=FALSE}
 if (!require("EBImage")) {
   BiocManager::install("EBImage")
 }
 library(EBImage)
+
 library(tiff)
 library(pixmap)
 library(raster)
@@ -40,15 +45,15 @@ library(beepr)
 
 # Setting up directories/reading files:
 
-Next, generate a data frame for count data to be added into using the following
-code:
+Now that we have the basics installed, we can begin using the *cellcount* package. Start by generating a data frame for count data to be added into using the following code:
+
 ```{r}
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 ```
 
 You'll need to generate a couple of directories; one for saving the unique
 color label images and another for CSV files. In this example, we are using 
-images of *Microcystis* sp. cells. Please note that your 
+images *Microcystis* sp. cells. Please note that your 
 directory addresses will be different. We recommend using a dedicated directory 
 for *cellcount* results:
 
@@ -118,10 +123,11 @@ display(grey_images[[5]])
 ```
 
 Next, we will use the "mapped" function to turn the 8-bit image we just
-converted into a data matrix using the following code. This also includes a
-pixel intensity threshold adjustment that end-users can change; this removes
-any pixel that is under the threshold value to easily separate the background
-from cells:
+converted into a data matrix. In addition, we use an additional function to 
+determine the median intensity of each image. From this, users can add a numerical
+buffer on top of the determined median intensity, giving a more accurate approach
+to separating the background intensity from the intensity of cells within each
+image:
 
 ```{r,include=FALSE}
 mapped <- function(x, threshold = 0.3) {
@@ -129,25 +135,32 @@ mapped <- function(x, threshold = 0.3) {
   x[x < threshold] <- 0
   return(x)
 }
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
 ```
 ```{r}
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 ```
 
 Before we analyze our images in bulk, set aside some code space to visually 
 analyze your images results. This could include adjusting the threshold
 from the "mapped" function, the contrast from the "greyscale" function 
-(if used), or could involve making adjustments to the "image_convert" function,
-such as the width and height of the rectangular window, the pixel area
-threshold (i.e., removes cells or other objects under a certain pixel area), 
-or the tolerance and 'ext' variables. Observe your initial results as indicated
-below and make adjustments where necessary:
+(if used), or could involve making adjustments to the "single_cell_convert" or
+"filamentous_convert" functions, such as the width and height of the rectangular 
+window, the pixel area threshold (i.e., removes cells or other objects under a 
+certain pixel area),or the tolerance and 'ext' variables. Observe your initial 
+results as indicated below and make adjustments where necessary:
 
 ```{r,include=FALSE}
 border <- function(x, y) {
   c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
 }
-countCells <- function(x) {
+count_cells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)
   border1 <- border(x, dims)
@@ -155,7 +168,7 @@ countCells <- function(x) {
   countInner <- countAll - length(ids)
   return(countInner)
 }
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
     border1 <- border(image, dims)
@@ -166,7 +179,7 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
-image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
   image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
@@ -177,27 +190,27 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
 }
 ```
 ```{r}
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
 
 # Analysis of images for producing count data:
 
 Once you have made necessary adjustments, use the following for-loop to
-analyze your images in bulk, one at a time. The for-loop uses the 
-"image_convert" function to produce unique color labels on cells within
-an image and to produce a final image showcasing these labels using the 
-"countImages" function. Finally, "countCells" is used to count the number of 
-unique color labels (i.e., cells). We also have integrated code to add these 
-count results to the data frame made earlier, and also to save each unique 
-color label image to the "image_savdir" directory:
+analyze your images in bulk, one at a time. In this example using *Microcystis* sp.
+images, the for-loop uses the "single_cell_convert" function to produce unique 
+color labels on cells within an image and to produce a final image showcasing 
+these labels using the "count_images" function. Finally, "count_cells" is used 
+to count the number of unique color labels (i.e., cells). We also have 
+integrated code to add these count results to the data frame made earlier, and 
+also to save each unique color label image to the "image_savdir" directory:
 
 ```{r}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
@@ -214,13 +227,13 @@ Cell.Count
 Some images that were initially taken may be too poor of quality or contain
 high background fluorescence, among other errors. The code below analyzes 
 outliers from the produced data, within a range of two standard deviations 
-above and below the median. The "outlier" function tags which images are
+above and below the median. The "outlier_detect" function tags which images are
 out of this range and dictates a warning within our data frame, which is shown 
 below. This alerts the end-user to perhaps re-image a particular sample, or
 to investigate the error further.
 
 ```{r,include=FALSE}
-outlier<-function(){
+outlier_detect<-function(){
   mean<-median(Cell.Count$Cell_Count)
   sd<-sd(Cell.Count$Cell_Count)*2
   sd_neg<-(mean-sd)
@@ -232,12 +245,12 @@ outlier<-function(){
 ```
 ```{r}
 Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-Cell.Count$SD_range<-outlier()
+Cell.Count$SD_range<-outlier_detect()
 Cell.Count
 ```
 
 In order to calculate cell density of these images, we can use the
-"cell.density" function that's built into the *cellcount* package. We first
+"cell_density" function that's built into the *cellcount* package. We first
 need to generate the total amount of cells counted from these images and
 add it to our existing data frame using the following code:
 
@@ -312,14 +325,17 @@ write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
 ```
 
 
-# Output data from test images in the *cellcount* package
+# Output data from test images in the *cellcount* package:
 
 ```{r,echo=FALSE}
 display(final_img)
 Cell.Count
 ```
 Test data results for *Microcystis* strain F-192
-
+<br>
+<br>
+<br>
+<br>
 
 ```{r,include=FALSE}
 # clear environment and free unused memory
@@ -344,7 +360,7 @@ mapped <- function(x, threshold = 0.3) {
 border <- function(x, y) {
   c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
 }
-countCells <- function(x) {
+count_cells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)
   border1 <- border(x, dims)
@@ -352,7 +368,7 @@ countCells <- function(x) {
   countInner <- countAll - length(ids)
   return(countInner)
 }
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
     border1 <- border(image, dims)
@@ -363,7 +379,16 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
-image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- fillHull(image)
+  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
   image2 <- fillHull(image1)
@@ -378,6 +403,15 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   cyano <- (MCF * N) / volume
   cyano_total <- cyano * total.volume
   return(cyano_total)
+}
+outlier_detect<-function(){
+  mean<-median(Cell.Count$Cell_Count)
+  sd<-sd(Cell.Count$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
+    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  return(SD_range_detection)
 }
 ```
 
@@ -398,34 +432,35 @@ names(images) <- imgNames
 
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
-imagesConverted <- image_convert2(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+imagesConverted <- filamentous_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
 
 ```{r,echo=FALSE}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert2(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
+  adj1<-median(img1[[z]])
+  adj2<-adj1+0.2
+  imagesMapped <- lapply(grey_images, mapped, threshold = adj2)
+  imagesConverted <- filamentous_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
 Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-outlier<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
-  sd_neg<-(mean-sd)
-  sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
-  return(SD_range_detection)
-}
-Cell.Count$SD_range<-outlier()
+Cell.Count$SD_range<-outlier_detect()
 
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
@@ -446,7 +481,10 @@ write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
 Cell.Count
 ```
 Test data results for *Anabena* sp.
-
+<br>
+<br>
+<br>
+<br>
 
 ```{r,include=FALSE}
 # clear environment and free unused memory
@@ -471,7 +509,7 @@ mapped <- function(x, threshold = 0.3) {
 border <- function(x, y) {
   c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
 }
-countCells <- function(x) {
+count_cells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)
   border1 <- border(x, dims)
@@ -479,7 +517,7 @@ countCells <- function(x) {
   countInner <- countAll - length(ids)
   return(countInner)
 }
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
     border1 <- border(image, dims)
@@ -490,10 +528,19 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
-image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
   image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- fillHull(image1)
   nf <- computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
   image3 <- rmObjects(image2, nr)
@@ -505,6 +552,15 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   cyano <- (MCF * N) / volume
   cyano_total <- cyano * total.volume
   return(cyano_total)
+}
+outlier_detect<-function(){
+  mean<-median(Cell.Count$Cell_Count)
+  sd<-sd(Cell.Count$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
+    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  return(SD_range_detection)
 }
 ```
 
@@ -525,34 +581,35 @@ names(images) <- imgNames
 
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 
-imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
 
 ```{r,echo=FALSE}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
+  adj1<-median(img1[[z]])
+  adj2<-adj1+0.2
+  imagesMapped <- lapply(grey_images, mapped, threshold = adj2)
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
 Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-outlier<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
-  sd_neg<-(mean-sd)
-  sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
-  return(SD_range_detection)
-}
-Cell.Count$SD_range<-outlier()
+Cell.Count$SD_range<-outlier_detect()
 
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
@@ -575,21 +632,26 @@ Cell.Count
 Test data results for *Shewanella* IRI-160
 
 
-# Shiny app user-interface for ***cellcount*** analysis
+# Shiny app user-interface for ***cellcount*** analysis:
 
 Several informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
 to utilize the ***cellcount*** tool. The following overview uses ***Shiny*** apps to enter input data and run image analyses. 
 
-The *input_data* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
+The *input_data_GUI* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
 and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization. Once all data has been
 provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export 
 data to the local R environment.
 
-(SHOW UI IMAGES HERE)
+![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
 
-*analyze_images* is a simple UI that contains two interactive buttons. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the previous function. Once the completion sound has been played, users can click the "Close window" button to exit the UI. Users can review the processed data in their respective directories.
+<br>
 
-(SHOW UI IMAGE HERE) 
+*analyze_images_GUI* is a simple UI that contains two interactive buttons. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the previous function. Once the completion sound has been played (using the *beepr* package), users can click the "Close window" button to exit the UI. Users can review the processed data in their respective directories.
+
+![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
+
+
+# Package limitations:
 
 
 # Literature cited:
