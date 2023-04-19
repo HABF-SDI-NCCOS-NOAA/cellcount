@@ -40,7 +40,7 @@ greyscale <- function(x, contrast = 2) {
   x <- normalize(x, inputRange = c(0.1, 0.75))
   return(x)
 }
-image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
   image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
@@ -49,7 +49,7 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
   image3 <- rmObjects(image2, nr)
   return(image3)
 }
-image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
   image2 <- fillHull(image1)
@@ -63,15 +63,22 @@ mapped <- function(x, threshold = 0.3) {
   x[x < threshold] <- 0
   return(x)
 }
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
 
 
 if(analysis_type == 'single-cell'){
   read_images <- lapply(images, readTIFF)
   img_transposed <- lapply(read_images,aperm,c(2,1,3))
   grey_images <- lapply(img_transposed, greyscale, contrast = contrast_adj2)
-  imagesMapped <- lapply(grey_images, mapped, threshold = thresh_adj2)
+  img1<-lapply(grey_images,mapped_avg)
   for (z in 1:length(images)) {
-    imagesConverted <- image_convert(imagesMapped[[z]], w = rec_width2, h = rec_height2, offset = 0.001, areathresh = areathresh2, tolerance = tolerance2, ext = ext2)
+    adj1<-median(img1[[j]])
+    adj2<-adj1+thresh_adj2
+    imagesMapped <- lapply(grey_images, mapped, threshold = adj2) #background intensity threshold adjustment
+    imagesConverted <- single_cell_convert(imagesMapped[[z]], w = rec_width2, h = rec_height2, offset = 0.001, areathresh = areathresh2, tolerance = tolerance2, ext = ext2)
     final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
     count <- countCells(imagesConverted)
     Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
@@ -93,9 +100,12 @@ if(analysis_type == 'single-cell'){
   read_images <- lapply(images, readTIFF)
   img_transposed <- lapply(read_images,aperm,c(2,1,3))
   grey_images <- lapply(img_transposed, greyscale, contrast = contrast_adj2)
-  imagesMapped <- lapply(grey_images, mapped, threshold = thresh_adj2)
+  img1<-lapply(grey_images,mapped_avg)
   for (z in 1:length(images)) {
-    imagesConverted <- image_convert2(imagesMapped[[z]], w = rec_width2, h = rec_height2, offset = 0.001, areathresh = areathresh2, tolerance = tolerance2, ext = ext2)
+    adj1<-median(img1[[j]])
+    adj2<-adj1+thresh_adj2
+    imagesMapped <- lapply(grey_images, mapped, threshold = adj2) #background intensity threshold adjustment
+    imagesConverted <- filamentous_convert(imagesMapped[[z]], w = rec_width2, h = rec_height2, offset = 0.001, areathresh = areathresh2, tolerance = tolerance2, ext = ext2)
     final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
     count <- countCells(imagesConverted)
     Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
