@@ -1,9 +1,9 @@
-#' Input Data
+#' Input Data GUI
 #'
 #' This function provides a Shiny user-interface to easily input data needed for fluorescent microscopy image analysis
 #' outlined in *cellcount*. This Shiny app contains several tabs for data input, directory selection, etc. Users must close
 #' the app by selecting the 'Completion' tab followed by 'Submit data entries' for all entered data to be exported into 
-#' the local R environment.
+#' the local R environment, where users can then utilize the 'analyze_images_GUI' function to run the *cellcount* image analysis.
 #' 
 #' @return Data input user-interface for *cellcount* image analysis
 #' @export
