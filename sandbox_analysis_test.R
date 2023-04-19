@@ -40,7 +40,7 @@ for (j in 1:length(images)) {
   adj1<-median(img1[[j]])
   adj2<-adj1+0.2
   imagesMapped <- lapply(grey_images, mapped, threshold = adj2) #background intensity threshold adjustment
-  imagesConverted <- image_convert(imagesMapped[[j]], w = 17, h = 17, offset = 0.001, areathresh = 250, tolerance = 1, ext = 1)
+  imagesConverted <- single_cell_convert(imagesMapped[[j]], w = 17, h = 17, offset = 0.001, areathresh = 250, tolerance = 1, ext = 1)
   final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- countCells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[j]], count)
