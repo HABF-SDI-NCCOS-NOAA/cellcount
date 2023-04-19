@@ -117,7 +117,7 @@ input_data<-function(){
     "  ",
     "  ",
     fixedRow(
-      column(4, "Developed by NOAA NCCOS")
+      column(4, "Developed by NOAA NCCOS HAB-F")
     )
     )
   )
