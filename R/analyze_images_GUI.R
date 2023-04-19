@@ -8,7 +8,7 @@
 #' @return Runs an automatic image analysis
 #' @export
 
-analyze_images<-function(){
+analyze_images_GUI<-function(){
   library(shiny)
   library(shinyalert)
   library(shinyFiles)

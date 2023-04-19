@@ -8,7 +8,7 @@
 #' @return Data input user-interface for *cellcount* image analysis
 #' @export
 
-input_data<-function(){
+input_data_GUI<-function(){
   library(shiny)
   library(shinyalert)
   library(shinyFiles)
