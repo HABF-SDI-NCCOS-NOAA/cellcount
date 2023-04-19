@@ -1,6 +1,6 @@
-#' Analyze Images
+#' Analyze Images GUI
 #'
-#' Brings in data entered from the "input_data" function and automatically runs a script to analyze images
+#' Brings in data entered from the "input_data_GUI" function and automatically runs a script to analyze images
 #' pertaining to cells from fluorescent microscopy images. This uses a Shiny user-interface, where two buttons
 #' are available to interact with. One button "Run Image Analysis" runs the analysis script while the "Close Window"
 #' button closes the Shiny interface.
