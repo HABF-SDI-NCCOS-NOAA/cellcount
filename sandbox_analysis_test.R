@@ -41,8 +41,8 @@ for (j in 1:length(images)) {
   adj2<-adj1+0.2
   imagesMapped <- lapply(grey_images, mapped, threshold = adj2) #background intensity threshold adjustment
   imagesConverted <- single_cell_convert(imagesMapped[[j]], w = 17, h = 17, offset = 0.001, areathresh = 250, tolerance = 1, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[j]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[j]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))

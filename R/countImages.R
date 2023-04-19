@@ -14,9 +14,9 @@
 #' @examples grey_images <- greyscale(images,contrast=2)
 #' @examples images_mapped <- mapped(grey_images,threshold=0.3)
 #' @examples imagesConverted <- image_convert(imagesMapped[[1]],w=10,h=10,offset=0.001,areathresh=50,tolerance=0.8,ext=1)
-#' @examples countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+#' @examples count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
     border1 <- c(image[1:dims[1], 1], image[1:dims[1], dims[2]], image[1, 1:dims[2]], image[dims[1], 1:dims[2]])

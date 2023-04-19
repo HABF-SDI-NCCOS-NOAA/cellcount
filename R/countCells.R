@@ -13,9 +13,9 @@
 #' @examples grey_images <- greyscale(images,contrast=2)
 #' @examples images_mapped <- mapped(grey_images,threshold=0.3)
 #' @examples imagesConverted <- image_convert(imagesMapped[[1]],w=10,h=10,offset=0.001,areathresh=50,tolerance=0.8,ext=1)
-#' @examples countCells(imagesConverted)
+#' @examples count_cells(imagesConverted)
 
-countCells <- function(x) {
+count_cells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)
   border1 <- c(x[1:dims[1], 1], x[1:dims[1], dims[2]], x[1, 1:dims[2]], x[dims[1], 1:dims[2]])
