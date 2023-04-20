@@ -62,8 +62,8 @@ savdir <- ("C:/file path for saving CSV data")
 image_savdir <- ("C:/file path for saving converted images")
 ```
 ```{r,include=FALSE}
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
+savdir <- ("./test_data/")
+image_savdir <- ("./test_results/")
 ```
 
 Next, you'll need to read in the images you are interested in processing using
@@ -76,8 +76,8 @@ images <- list.files("C:/file path of images to analyze", pattern = "tif", full.
 images_names <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = F)
 ```
 ```{r,include=FALSE}
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+images <- list.files("./test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("./test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
 In addition, you'll need to assign the file names to a vector along with adding
@@ -327,13 +327,11 @@ write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
 
 # Output data from test images in the *cellcount* package:
 
+### Test data results for *Microcystis* strain F-192
 ```{r,echo=FALSE}
 display(final_img)
 Cell.Count
 ```
-Test data results for *Microcystis* strain F-192
-<br>
-<br>
 <br>
 <br>
 
@@ -343,7 +341,7 @@ rm(list=ls())
 gc()
 ```
 
-
+### Test data results for *Anabena* sp.
 ```{r,include=FALSE}
 greyscale <- function(x, contrast = 2) {
   x <- contrast * x
@@ -420,10 +418,10 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 file_name<-paste0("img_")
 
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
+savdir <- ("./test_data/")
+image_savdir <- ("./test_results/")
+images <- list.files("./test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
+images_names <- list.files("./test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -480,9 +478,6 @@ write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
 
 Cell.Count
 ```
-Test data results for *Anabena* sp.
-<br>
-<br>
 <br>
 <br>
 
@@ -492,7 +487,7 @@ rm(list=ls())
 gc()
 ```
 
-
+### Test data results for *Shewanella* IRI-160
 ```{r,include=FALSE}
 greyscale <- function(x, contrast = 2) {
   x <- contrast * x
@@ -569,10 +564,10 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 file_name<-paste0("img_")
 
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
+savdir <- ("./test_data/")
+image_savdir <- ("./test_results/")
+images <- list.files("./test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
+images_names <- list.files("./test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -629,7 +624,6 @@ write.csv(Cell.Count, paste0(savdir, "/Shewanella_test counts.csv"))
 
 Cell.Count
 ```
-Test data results for *Shewanella* IRI-160
 
 
 # Shiny app user-interface for ***cellcount*** analysis:
@@ -637,6 +631,7 @@ Test data results for *Shewanella* IRI-160
 Several informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
 to utilize the ***cellcount*** tool. The following overview uses ***Shiny*** apps to enter input data and run image analyses. 
 
+### Inputting data
 The *input_data_GUI* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
 and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization. Once all data has been
 provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export 
@@ -644,7 +639,7 @@ data to the local R environment.
 
 ![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
 
-<br>
+### Running the image analysis
 
 *analyze_images_GUI* is a simple UI that contains two interactive buttons. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the previous function. Once the completion sound has been played (using the *beepr* package), users can click the "Close window" button to exit the UI. Users can review the processed data in their respective directories.
 
