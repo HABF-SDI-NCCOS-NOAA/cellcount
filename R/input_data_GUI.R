@@ -13,6 +13,7 @@ input_data_GUI<-function(){
   library(shinyalert)
   library(shinyFiles)
   library(shinyjs)
+  library(shinyBS)
   
   jscode <- "shinyjs.closeWindow = function() { window.close(); }"
   
@@ -43,9 +44,11 @@ input_data_GUI<-function(){
                fixedRow(
                  column(2,offset=2,shinyDirButton('path1','CSV save directory','Please select a directory to save CSV files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
                ),
+               h4("  "),
                fixedRow(
                  column(2,offset=2,shinyDirButton('path2','Image save directory','Please select a directory to save Image files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
                ),
+               h4("  "),
                fixedRow(
                  column(2,offset=2,shinyDirButton('path3','Image analysis directory','Please select a directory containing image files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
                )
@@ -60,47 +63,42 @@ input_data_GUI<-function(){
       ),
       tabPanel(h4("Data inputs"),
                h3("   "),
-               fixedRow(
-                 column(2,offset=2,actionButton("run4", "Species name", class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("clipboard")))
+               fluidRow(
+                 column(1,bsButton("run4", align="center", "Species name", class = "btn-danger",size='large',icon=icon("clipboard"))),
+                 column(6,offset=5,bsButton("run6", align="center", 'Threshold adjustment', class = "btn-danger",size='large',icon=icon("gear")))
                ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run6", 'Threshold adjustment', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("gear")))
+               h4("  "),
+               fluidRow(
+                 column(1,bsButton("run7", 'Field of View', class = "btn-danger",size='large',icon=icon("magnifying-glass"))),
+                 column(6,offset=5,bsButton("run8", 'Number of images', class = "btn-danger",size='large',icon=icon("image")))
                ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run7", 'Field of View', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("magnifying-glass")))
+               h4("  "),
+               fluidRow(
+                 column(1,bsButton("run9", 'Volume filtered', class = "btn-danger",size='large',icon=icon("vials"))),
+                 column(6,offset=5,bsButton("run10", 'Total volume', class = "btn-danger",size='large',icon=icon("flask")))
                ),
+               h4("  "),
                fixedRow(
-                 column(2,offset=2,actionButton("run8", 'Number of images', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("image")))
+                 column(1,bsButton("run11", 'Contrast adjustment', class = "btn-danger",size='large',icon=icon("gears"))),
+                 column(6,offset=5,bsButton("run12", 'Filtration area', class = "btn-danger",size='large',icon=icon("layer-group")))
                ),
+               h4("  "),
                fixedRow(
-                 column(2,offset=2,actionButton("run9", 'Volume filtered', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("vials")))
+                 column(1,bsButton("run14", 'Object tolerance', class = "btn-danger",size='large',icon=icon("circle-exclamation"))),
+                 column(6,offset=5,bsButton("run15", 'EXT input', class = "btn-danger",size='large',icon=icon("globe")))
                ),
+               h4("  "),
                fixedRow(
-                 column(2,offset=2,actionButton("run10", 'Total volume', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("flask")))
+                 column(1,bsButton("run16", 'Cell area threshold', class = "btn-danger",size='large',icon=icon("crop-simple"))),
+                 column(6,offset=5,bsButton("run13", 'CSV file name', class = "btn-danger",size='large',icon=icon("pen")))
                ),
+               h4("  "),
                fixedRow(
-                 column(2,offset=2,actionButton("run11", 'Contrast adjustment', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("gears")))
+                 column(1,bsButton("run17", 'Rectangular window width', class = "btn-danger",size='large',icon=icon("arrows-left-right")))
                ),
+               h4("  "),
                fixedRow(
-                 column(2,offset=2,actionButton("run12", 'Filtration area', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("layer-group")))
-               ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run17", 'Rectangular window width', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("arrows-left-right")))
-               ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run18", 'Rectangular window height', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("arrows-up-down")))
-               ),  
-               fixedRow(
-                 column(2,offset=2,actionButton("run14", 'Object tolerance', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("circle-exclamation")))
-               ),               
-               fixedRow(
-                 column(2,offset=2,actionButton("run15", 'EXT input', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("globe")))
-               ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run16", 'Cell area threshold', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("crop-simple")))
-               ),
-               fixedRow(
-                 column(2,offset=2,actionButton("run13", 'CSV file name', class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("pen")))
+                 column(1,bsButton("run18", 'Rectangular window height', class = "btn-danger",size='large',icon=icon("arrows-up-down")))
                )
       ),
       tabPanel(h4("Completion"),
@@ -347,6 +345,51 @@ input_data_GUI<-function(){
       close(rec_height1)
       rec_height2<<-as.numeric(rec_height2)
     }
+    observeEvent(input$run4,{
+      updateButton(session,'run4',style = "success")
+    })
+    observeEvent(input$run5,{
+      updateButton(session,'run5',style = "success")
+    })
+    observeEvent(input$run6,{
+      updateButton(session,'run6',style = "success")
+    })
+    observeEvent(input$run7,{
+      updateButton(session,'run7',style = "success")
+    })
+    observeEvent(input$run8,{
+      updateButton(session,'run8',style = "success")
+    })
+    observeEvent(input$run9,{
+      updateButton(session,'run9',style = "success")
+    })
+    observeEvent(input$run10,{
+      updateButton(session,'run10',style = "success")
+    })
+    observeEvent(input$run11,{
+      updateButton(session,'run11',style = "success")
+    })
+    observeEvent(input$run12,{
+      updateButton(session,'run12',style = "success")
+    })
+    observeEvent(input$run13,{
+      updateButton(session,'run13',style = "success")
+    })
+    observeEvent(input$run14,{
+      updateButton(session,'run14',style = "success")
+    })
+    observeEvent(input$run15,{
+      updateButton(session,'run15',style = "success")
+    })
+    observeEvent(input$run16,{
+      updateButton(session,'run16',style = "success")
+    })
+    observeEvent(input$run17,{
+      updateButton(session,'run17',style = "success")
+    })
+    observeEvent(input$run18,{
+      updateButton(session,'run18',style = "success")
+    })
     observeEvent(input$close, {
       js$closeWindow()
       stopApp()
@@ -354,7 +397,7 @@ input_data_GUI<-function(){
   }
   #shinyApp(ui = ui1, server = server1)
   runGadget(ui1, server1, viewer = dialogViewer("cellcount Image Analysis Interface",
-                                                width = 800, height = 1500))
+                                                width = 800, height = 700))
   
   Cell.Count <<- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
   images <<- list.files(image_analysis, pattern = "tif", full.name = T)
