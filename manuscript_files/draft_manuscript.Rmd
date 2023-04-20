@@ -10,12 +10,12 @@ author:
   - name: Mark W. Vandersea
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
     
-#  - name: David E. Berthold
-#    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+  - name: David E. Berthold
+    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
   
-#  - name: H. Dail Laughinghouse
-#    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
-#    orcid_id: 0000-0003-1018-6948
+  - name: H. Dail Laughinghouse
+    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+    orcid_id: 0000-0003-1018-6948
   
   - name: Kaytee Pokrzywinski
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
@@ -25,7 +25,7 @@ output: distill::distill_article
 ---
 # Summary
 
-The ***cellcount*** package is a continuation of the report outlined in [@Pokrzywinski2019] and simplfies the quantification of bacteria and cyanobacteria *via* flourescence microscopy, using the computing language [R](https://www.r-project.org/). Functions within this package deconstruct images to assess individual cells, generate cell counts, and assess overall cell density from samples. In addition, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, are found in [GitHub.](https://github.com/teharman/cellcount_main)
+The ***cellcount*** package is a continuation of the report outlined in [@Pokrzywinski2019] and simplfies the quantification of bacteria and cyanobacteria *via* flourescence microscopy, using the computing language [R](https://www.r-project.org/). Functions within this package deconstruct images to assess individual cells, generate cell counts, and assess overall cell density from samples. In addition, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, are found on NOAA's NCCOS HAB-F [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
 
 # Statement of need
 
@@ -34,7 +34,7 @@ environment and are stabilized in terms of population by means of nutrient avail
 phytoplankton [@Catherine2013]. However, in recent years, HABs have become increasingly common throughout the world, where climate change and anthropogenic impacts exacerbate the commonality of HABs. These blooms can cause harm to the aquatic environment, reducing phytoplankton assemblages, causing anoxic environments, and toxin production impacting higher trophic level organisms [@Kurmayer2003], [@Stumpf2012], [@Catherine2013], [@Borges2019], and [@Wood2020]. From a public health aspect, the production of toxins can cause health issues or even death, but also cause impact from an economic standpoint such as reductions in property value and tourism in coastal areas [@Carey2012].
   
 Several methods have been established to understand HAB dynamics, primarily to develop monitoring protocols and establish mitigation 
-practices. Microscopic enumeration has been considered as the gold standard for several decades as the method is widely available and simple to use [@Jin2018]. Although it is the standard method, microscopic enumeration can be time consuming, can be limited to small sample quantities, and requires significant knowledge of species identification [@Li2014] and [@Jin2018]. Technology has become significant in advancing scientific methods, and it is no less significant in its role in advancing enumeration processes. Several commercially available products such as the FlowCam (Fluid Imaging Technologies Inc.) and Imaging FlowCytobot (McLane Research Laboratories Inc.) can be used to simplify enumeration methods (REF). **These technologies can be accurate, demonstrate time-savings, and simplify data collection (REF). However, several limitations can be observed such as particle size, misidentification of cells, and overall grouping of particles within samples, which can require assistance from researchers (REF).** In addition, these technologies are expensive to purchase and maintain, reducing the nature of these technologies being widely available [@Stauffer2019]. A few studies have explored the process of automated cell enumeration methods by means of technology and software development, but promoting widespread availability. ImageJ is an open-source imaging analysis software and has available tools for particle/cell enumeration [@Schulze2011]. Other software algorithms have been developed to accomplish automated cellular enumeration [@Jin2018]. These methods can still be considered time-consuming (ImageJ) and require extensive knowledge of mathematical modeling [@Jin2018].
+practices. Microscopic enumeration has been considered as the gold standard for several decades as the method is widely available and simple to use [@Jin2018]. Although it is the standard method, microscopic enumeration can be time consuming, can be limited to small sample quantities, and requires significant knowledge of species identification [@Li2014] and [@Jin2018]. Technology has become significant in advancing scientific methods, and it is no less significant in its role in advancing enumeration processes. **Several commercially available products such as the FlowCam (Fluid Imaging Technologies Inc.) and Imaging FlowCytobot (McLane Research Laboratories Inc.) can be used to simplify enumeration methods (REF). These technologies can be accurate, demonstrate time-savings, and simplify data collection (REF). However, several limitations can be observed such as particle size, misidentification of cells, and overall grouping of particles within samples, which can require assistance from researchers (REF).** In addition, these technologies are expensive to purchase and maintain, reducing the nature of these technologies being widely available [@Stauffer2019]. A few studies have explored the process of automated cell enumeration methods by means of technology and software development, but promoting widespread availability. ImageJ is an open-source imaging analysis software and has available tools for particle/cell enumeration [@Schulze2011]. Other software algorithms have been developed to accomplish automated cellular enumeration [@Jin2018]. These methods can still be considered time-consuming (ImageJ) and require extensive knowledge of mathematical modeling [@Jin2018].
 
 The methods mentioned previously can be viable options for researchers regarding monitoring purposes, but can be expensive and require 
 extensive training and materials. This leads to the suggestion of the need for accurate, low-cost, and widely available methods for rapid and simplistic automated enumeration of cells. A report released by [@Pokrzywinski2019] outlines an automated cyanobacteria enumeration script using the open-source programming language, R. [@Pokrzywinski2019] shows that while using fluorescent microscopy images, this enumeration script performs considerably well compared to standard microscopic enumeration methods. However, the previous presentation of this script can be considered extremely difficult to grasp for inexperienced R users and lacks organization. We utilized this script as a template for the development of an R package, involving the reduction of code into simple functions, expanding the ability for end-user modifications, development of a vignette for inexperienced users, and promoting open-source availability.
@@ -53,10 +53,10 @@ library(raster)
 library(beepr)
 library(knitr)
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_results/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_data/")
+image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_results/")
+images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 file_name<-paste0("F192_")
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -91,7 +91,7 @@ mapped <- function(x, threshold = 0.3) {
 imagesMapped <- lapply(grey_images, mapped, threshold = 0.3)
 ```
 
-The *border* function is built into several other functions within ***cellcount*** (i.e. *countImages*, *image_convert*, etc.), where its primarily goal is to predict cells along a predetermined border and to remove these cells from the final cell count estimate from each image. (WHY IS THAT IMPORTANT-OUTLINE IT HERE).
+The *border* function is built into several other functions within ***cellcount*** (i.e. *count_images*, *single_cell_convert*, etc.), where its primarily goal is to predict cells along a predetermined border and to remove these cells from the final cell count estimate from each image. (WHY IS THAT IMPORTANT-OUTLINE IT HERE).
 
 ```{r, message=FALSE}
 border <- function(x, y) {
@@ -99,10 +99,10 @@ border <- function(x, y) {
 }
 ```
 
-The *image_convert* functions take the data matrices corresponding to each image and counts individual cells within an image, omitting the cells indentified from the *border* function. Fluorescence microscopy images analyzed by this function are of a single fluorescent dimension (i.e. auto-fluorescence, DAPI, etc.). End-users should note that this function is useful only for analyzing images containing single-cell cyanobacteria. *fillHull* is placed first in this function before *watershed* in order to disseminate single-cells with more accuracy. A parallel function in ***cellcount***, *image_convert2*, is similarly organized but meant for filamentous or colonial-type cyanobacteria. The difference with this is largely where *watershed* is placed before *fillHull*, opposite of *image_convert*, which improves accuracy. Within these two functions, several variables can be adjusted by end-users, such as the width and height of the rectangular window (see ***EBImage***), the pixel area threshold (i.e., removes cells or other objects under a certain pixel area), and the tolerance and ‘ext’ variables (see ***EBImage***).
+The *single_cell_convert* functions take the data matrices corresponding to each image and counts individual cells within an image, omitting the cells indentified from the *border* function. Fluorescence microscopy images analyzed by this function are of a single fluorescent dimension (i.e. auto-fluorescence, DAPI, etc.). End-users should note that this function, like the name suggests, is useful only for analyzing images containing single-cell cyanobacteria. *fillHull* is placed first in this function before *watershed* in order to disseminate single-cells with more accuracy. A parallel function in ***cellcount***, *filamentous_convert*, is similarly organized but meant for filamentous or colonial-type cyanobacteria. The difference with this is largely where *watershed* is placed before *fillHull*, opposite of *single_cell_convert*, which improves accuracy. Within these two functions, several variables can be adjusted by end-users, such as the width and height of the rectangular window (see ***EBImage***), the pixel area threshold (i.e., removes cells or other objects under a certain pixel area), and the tolerance and ‘ext’ variables (see ***EBImage***).
 
 ```{r}
-image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- fillHull(image)
   image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
@@ -113,7 +113,7 @@ image_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, to
 }
 ```
 ```{r}
-image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
   image <- thresh(x, w = w, h = h, offset = offset)
   image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
   image2 <- fillHull(image1)
@@ -124,10 +124,10 @@ image_convert2 <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, t
 }
 ```
 
-Once the conversion occurs, the *countImages* function generates a color-label image, where each separated cell is given a unique color-label. This function includes removing cells along a predetermined border using the *border* function in order to improve count accuracy. End-users may view these color-label images using the *display* function (see the ***arm*** package).
+Once the conversion occurs, the *count_images* function generates a color-label image, where each separated cell is given a unique color-label. This function includes removing cells along a predetermined border using the *border* function in order to improve count accuracy. End-users may view these color-label images using the *display* function (see the ***arm*** package).
 
 ```{r}
-countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
   if (removeEdgeCells) {
     dims <- dim(image)
     border1 <- border(image, dims)
@@ -140,15 +140,15 @@ countImages <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
 }
 ```
 ```{r,echo=FALSE,fig.cap="A converted color-label image of *Microcystis* sp."}
-imagesConverted <- image_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
+imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
 ```
 
-The final function, *countCells*, counts the number of cells resulting from the image generated by the *countImages* function. Once again, the *border* function is integrated here to omit counting cells within its predetermined border. Other items within the *sandbox_analysis_test.R* script enables users to analyze images in bulk, generate tables of results, calculate cell densities using equations from [@Wetzel2000], and export data to .csv files for easy organization. 
+The final function, *count_cells*, counts the number of cells resulting from the image generated by the *count_images* function. Once again, the *border* function is integrated here to omit counting cells within its predetermined border. Other items within the *sandbox_analysis_test.R* script enables users to analyze images in bulk, generate tables of results, calculate cell densities using equations from [@Wetzel2000], and export data to .csv files for easy organization. 
 
 ```{r}
-countCells <- function(x) {
+count_cells <- function(x) {
   countAll <- max(x)
   dims <- dim(x)
   border1 <- border(x, dims)
@@ -160,9 +160,9 @@ countCells <- function(x) {
 
 ```{r,echo=FALSE,fig.pos="h"}
 for (z in 1:length(images)) {
-  imagesConverted <- image_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
-  final_img <- countImages(imagesConverted, normalize = T, removeEdgeCells = T)
-  count <- countCells(imagesConverted)
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
 }
 cell.total <- as.numeric(Cell.Count$Cell_Count)
@@ -187,13 +187,13 @@ kable(Cell.Count, caption = "Analyzed results from test images of *Microcystis* 
 
 # Graphical user interface using Shiny apps
 
-Informal discussions with researchers ignited the development of a graphical user interface (GUI) using Shiny apps, paired with functions from the ***cellcount*** package. This results in the use of two functions, *input_data* and *analyze images*, to run the entire analysis process as outlined in the *sandbox_analysis_test.R* script. In addition to packages required by ***cellcount***, these GUIs require the ***shiny*** [@Chang2022], ***shinyalert*** [@1Attali2021], ***shinyFiles*** [@Pedersen2022], ***shinyjs*** [@2Attali2021], and ***beepr*** [@Baath2018] libraries.
+Informal discussions with researchers ignited the development of a graphical user interface (GUI) using Shiny apps, paired with functions from the ***cellcount*** package. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined in the *sandbox_analysis_test.R* script. In addition to packages required by ***cellcount***, these GUIs require the ***shiny*** [@Chang2022], ***shinyalert*** [@1Attali2021], ***shinyFiles*** [@Pedersen2022], ***shinyjs*** [@2Attali2021], ***DT*** [@Xie2023], and ***beepr*** [@Baath2018] libraries.
 
-*input_data* uses a Shiny app UI for end-users to easily fill out the needed information in order to correctly label analyzed images, provide numerical inputs for variables, select image analysis type, and easily select directories containing images and saving data. The UI format is a simple approach, with tabs outlined on the left-hand side of the interface for its respective purpose (i.e., directory selection, analysis type selection, etc.). Each tab contains interactive buttons or drop-down menus for users to enter in the respective information or make appropriate selections for their analysis needs. Shiny directory buttons provide users a simple and familiar interface to select appropriate folders containing images or to set up save directories. Alert modals (see ***shinyalert***) are used for users to interact and provide information in text format, with helpful dialog to keep users organized and informed of the information needed. Once all information is provided, users select the "Completion" tab and click the "submit data entries" button to complete the data input process.
+*input_data_GUI* uses a Shiny app UI for end-users to easily fill out the needed information in order to correctly label analyzed images, provide numerical inputs for variables, select image analysis type, and easily select directories containing images and saving data. The UI format is a simple approach, with tabs outlined on the left-hand side of the interface for its respective purpose (i.e., directory selection, analysis type selection, etc.). Each tab contains interactive buttons or drop-down menus for users to enter in the respective information or make appropriate selections for their analysis needs. Shiny directory buttons provide users a simple and familiar interface to select appropriate folders containing images or to set up save directories. Alert modals (see ***shinyalert***) are used for users to interact and provide information in text format, with helpful dialog to keep users organized and informed of the information needed. Once all information is provided, users select the "Completion" tab and click the "submit data entries" button to complete the data input process.
 
 ![Graphical user interface of the 'input_data' function using Shiny](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
 
-*analyze_images* uses a simplistic Shiny UI which consists of two buttons, one to run the analysis and the other to close the UI interface. Once the proper data has been entered from the *input_data* function, users simply click the "Run Image Analysis" button to begin. Sounds from the ***beepr*** package alert users of completion of the analysis, where the "Close window" button exits the UI window. Users can navigate to their specific directories to find analyzed images and related .csv files for their review.
+*analyze_images_GUI* uses a simplistic Shiny UI which consists of three buttons, one to run the analysis, another to close the UI interface, and one to refresh the available data table below once the analysis has completed. Once the proper data has been entered from the *input_data_GUI* function, users simply click the "Run Image Analysis" button to begin. Sounds from the ***beepr*** package alert users of completion of the analysis, allowing users to refresh the data table to see their results. Once satisified, users can click the "Close window" button to exit the UI window. Users can navigate to their specific directories to find analyzed images and related .csv files for their review.
 
 ![Graphical user interface of the 'analyze_images' function using Shiny](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
 
@@ -745,4 +745,45 @@ references:
         - 16
     title: 'raster: Geographic Data Analysis and Modeling'
     URL: https://cran.r-project.org/web/packages/raster/index.html
-...
+    
+  - type: package
+    id: Xie2023
+    author:
+      - family: Xie
+        given: Y.
+      - family: Cheng
+        given: J.
+      - family: Tan
+        given: X.
+      - family: Allaire
+        given: J.J.
+      - family: Girlich
+        given: M.
+      - family: Ellis
+        given: G.F.
+      - family: Rauh
+        given: J.
+      - family: Reavis
+        given: B.
+      - family: Gersen
+        given: L.
+      - family: Szopka
+        given: B.
+      - family: Pickering
+        given: A.
+      - family: Holmes
+        given: W.
+      - family: Marttila
+        given: M.
+      - family: Quintero
+        given: A.
+      - family: Laurent
+        given: S.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 17
+    title: 'DT: A Wrapper of the JavaScript Library DataTables'
+    URL: https://cran.r-project.org/web/packages/DT/index.html
+---
