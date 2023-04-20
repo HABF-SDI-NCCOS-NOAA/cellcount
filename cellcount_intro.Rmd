@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *cellcount* is an R package distributed freely by NOAA NCCOS HAB-F on [GitHub](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories) and uses components in the RStudio IDE program. Make sure to install both the latest version of R and RStudio.
 
-To get started with *cellcount*, users must make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package'. You should now have the *cellcount* package installed. Use the following code to bring *cellcount* into the R environment:
+To get started with *cellcount*, users can make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Users may also download the package from the provided release on GitHub that contains a zipped folder with the package material. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). You should now have the *cellcount* package installed. Use the following code to bring *cellcount* into the R environment:
 
 ```{r}
 library(cellcount)
@@ -62,8 +62,8 @@ savdir <- ("C:/file path for saving CSV data")
 image_savdir <- ("C:/file path for saving converted images")
 ```
 ```{r,include=FALSE}
-savdir <- ("./test_data/")
-image_savdir <- ("./test_results/")
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
 ```
 
 Next, you'll need to read in the images you are interested in processing using
@@ -76,8 +76,8 @@ images <- list.files("C:/file path of images to analyze", pattern = "tif", full.
 images_names <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = F)
 ```
 ```{r,include=FALSE}
-images <- list.files("./test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
-images_names <- list.files("./test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
 In addition, you'll need to assign the file names to a vector along with adding
@@ -418,10 +418,10 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 file_name<-paste0("img_")
 
-savdir <- ("./test_data/")
-image_savdir <- ("./test_results/")
-images <- list.files("./test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
-images_names <- list.files("./test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
+images <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -564,10 +564,10 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 
 file_name<-paste0("img_")
 
-savdir <- ("./test_data/")
-image_savdir <- ("./test_results/")
-images <- list.files("./test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
-images_names <- list.files("./test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
+images <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -648,6 +648,11 @@ data to the local R environment.
 
 # Package limitations:
 
+The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. We recommend at least 16GB of localized RAM, the use of a cloud computing supercomputer (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
+
+Users must be aware that this package does not contain abilities to identify distinct cells. The development of this package utilized carefully cultured monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned include identifying cell features and building image libraries of specific cellular species for use in environmental samples.
+
+Outside of package limitations, users must be aware of limitations that may arise from poor microscopy imaging; reduce lighting as much as possible, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good *cellcount* results - keep this in mind as you utilize this tool.
 
 # Literature cited:
 
