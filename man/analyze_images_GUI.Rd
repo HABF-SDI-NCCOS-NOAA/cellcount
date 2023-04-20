@@ -11,7 +11,8 @@ Runs an automatic image analysis
 }
 \description{
 Brings in data entered from the "input_data_GUI" function and automatically runs a script to analyze images
-pertaining to cells from fluorescent microscopy images. This uses a Shiny user-interface, where two buttons
-are available to interact with. One button "Run Image Analysis" runs the analysis script while the "Close Window"
-button closes the Shiny interface.
+pertaining to cells from fluorescent microscopy images. This uses a Shiny user-interface, where three buttons
+are available to interact with, as well as an interactive table below. The "Run Image Analysis" button runs
+the analysis script, the "Close Window" button closes the Shiny interface, and the "Refresh" button allows
+users to view the analyzed data once the analysis has completed.
 }
