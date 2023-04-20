@@ -641,7 +641,7 @@ data to the local R environment.
 
 ### Running the image analysis
 
-*analyze_images_GUI* is a simple UI that contains two interactive buttons. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the previous function. Once the completion sound has been played (using the *beepr* package), users can click the "Close window" button to exit the UI. Users can review the processed data in their respective directories.
+*analyze_images_GUI* is a simple UI that contains three interactive buttons as well as a data table below. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the *input_data_GUI* function. Once the completion sound has been played (using the *beepr* package), users can click the "Refresh" button to update the table below with the analyzed data and review. Once finished with analysis, the "Close window" button to exit the UI.
 
 ![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
 
