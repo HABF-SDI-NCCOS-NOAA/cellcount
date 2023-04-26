@@ -1,9 +1,9 @@
 ---
 title: "Introduction to *cellcount* - Draft vignette"
 author: "*T.E. Harman, M. Vandersea, K. Pokrzywinski*"
-date: "04/19/2023"
+date: "`r Sys.Date()`"
 abstract: >
-  The *cellcount* package provides wrapper functions for  [*EBImage*](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html) to simplfy quantifying bacteria and cyanobacteria via flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, *cellcount*, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
+  The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods require specialized expertise and are error prone due to variations between researchers. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, designed in the R computing language, to quickly and accurately count various microbial morphotypes. In this open access package, fluorescent microscope images are analyzed to generate particle counts and quantify overall cell density from samples at comparable concentrations as conventional counting methods.
 output: html_document
 ---
 
@@ -13,23 +13,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Getting started:
 
-*cellcount* is an R package distributed freely by NOAA NCCOS HAB-F on [GitHub](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories) and uses components in the RStudio IDE program. Make sure to install both the latest version of R and RStudio.
+***cellcount*** is an open-source R package distributed by NOAA NCCOS HAB-F on [GitHub](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories) and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
 
-To get started with *cellcount*, users can make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Users may also download the package from the provided release on GitHub that contains a zipped folder with the package material. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). You should now have the *cellcount* package installed. Use the following code to bring *cellcount* into the R environment:
+To get started with ***cellcount***, users can make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Users may also download the package from the provided release on GitHub that contains a zipped folder with the package material. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
 
 ```{r}
 library(cellcount)
 ```
 
-In addition, the following packages are required to use functions within *cellcount*:
+In addition, the following packages are required to use functions within ***cellcount***:
 
-- *EBImage*
-- *tiff*
-- *pixmap*
-- *raster*
-- *beepr*
+- [***EBImage***](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html)
+- [***tiff***](https://www.rforge.net/tiff/)
+- [***pixmap***](https://cran.r-project.org/package=pixmap)
+- [***raster***](https://cran.r-project.org/web/packages/raster/index.html)
+- [***beepr***](https://cran.r-project.org/web/packages/beepr/index.html)
 
-*EBImage* uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
+***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
 
 ```{r, message=FALSE}
 if (!require("EBImage")) {
@@ -45,17 +45,13 @@ library(beepr)
 
 # Setting up directories/reading files:
 
-Now that we have the basics installed, we can begin using the *cellcount* package. Start by generating a data frame for count data to be added into using the following code:
+After the basic supporting packages have been installed, an empty data frame can be generated to record resulting count data from the ***cellcount*** package using the following code:
 
 ```{r}
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 ```
 
-You'll need to generate a couple of directories; one for saving the unique
-color label images and another for CSV files. In this example, we are using 
-images *Microcystis* sp. cells. Please note that your 
-directory addresses will be different. We recommend using a dedicated directory 
-for *cellcount* results:
+In order to appropriately save files from the ***cellcount*** analysis, some directories will be required; one for saving the unique color label images and another for CSV files. Please note that directory addresses will be different based on operating system and location. It is recommended to use a dedicated directory for ***cellcount*** results:
 
 ```{r,message=FALSE}
 savdir <- ("C:/file path for saving CSV data")
@@ -66,32 +62,25 @@ savdir <- ("./inst/extdata/test_data/")
 image_savdir <- ("./inst/extdata/test_results/")
 ```
 
-Next, you'll need to read in the images you are interested in processing using
-the following code. Once again, your directories will be different and must be
-updated to the correct file address. However, in this example we will be using
-the provided test images from this package:
+Next, images that are of interest will need to read into the R environment using
+the following code. Once again, directories will be different and must be
+updated to the correct file address. This example will use 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
 
-```{r,message=FALSE}
-images <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = T)
-images_names <- list.files("C:/file path of images to analyze", pattern = "tif", full.name = F)
-```
-```{r,include=FALSE}
+```{r}
 images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
 images_names <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
-In addition, you'll need to assign the file names to a vector along with adding
-in characterization to each file for easy organization:
+In addition, users can assign additional identifications to each file for easy organization, as shown here:
 
 ```{r}
 file_name<-paste0("F192_")
 ```
 
-Now we will "read" in the images that we are interested in analyzing. The
-following code outlines this step using the "readTIFF" function from the 
-*tiff* package. In addition, we'll need to re-orient the image as it's uploaded
-into the environment. The "readTIFF" function uploads images in a portrait 
-format - the "aperm" function reorients the uploaded image to a landscape format:
+Images from the assigned directory can now be "read" into the environment for analysis. The
+following code outlines this step using the *readTIFF* function from the 
+***tiff*** package. In addition, images will need to be re-oriented as the *readTIFF* function uploads images in a portrait 
+format. The *aperm* function shown below re-orients the uploaded image to a landscape format:
 
 ```{r, warning=FALSE}
 imgNames <- paste0(file_name, images_names)
@@ -102,11 +91,11 @@ names(images) <- imgNames
 
 # Beginning the conversion process:
 
-Now that our images are within the R environment, we can begin to convert these
-images into useful data that R can use to process images. First, we begin by
-converting 24-bit images into 8-bit images using the "greyscale" function (see 
+Once images are within the R environment, the process to convert these
+images into useful data can begin. First, begin by
+converting 24-bit images into 8-bit images using the *greyscale* function (see 
 photo below). This function also has a built-in numerical contrast adjustment 
-that end-users can adjust:
+that end-users can change:
 
 ```{r,include=FALSE}
 greyscale <- function(x, contrast = 2) {
@@ -122,12 +111,12 @@ grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 display(grey_images[[5]])
 ```
 
-Next, we will use the "mapped" function to turn the 8-bit image we just
-converted into a data matrix. In addition, we use an additional function to 
-determine the median intensity of each image. From this, users can add a numerical
+The *mapped* function turns the converted 8-bit image into a data matrix. An additional function to 
+determine the median intensity of each image is also used. From this, users can add a numerical
 buffer on top of the determined median intensity, giving a more accurate approach
 to separating the background intensity from the intensity of cells within each
-image:
+image. For example, if an image has a median intensity of 0.05, with a numerical buffer of 0.2,
+the threshold is equal to 0.25. Any pixel within the image below 0.25 will be omitted from the matrix and assigned a value of zero.
 
 ```{r,include=FALSE}
 mapped <- function(x, threshold = 0.3) {
@@ -147,13 +136,13 @@ main_adj<-pre_adj+0.2
 imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 ```
 
-Before we analyze our images in bulk, set aside some code space to visually 
-analyze your images results. This could include adjusting the threshold
+Before images are analyzed in bulk, it is encouraged to visually 
+analyze image results and determine if changes need to be made. This could include adjusting the threshold
 from the "mapped" function, the contrast from the "greyscale" function 
 (if used), or could involve making adjustments to the "single_cell_convert" or
 "filamentous_convert" functions, such as the width and height of the rectangular 
 window, the pixel area threshold (i.e., removes cells or other objects under a 
-certain pixel area),or the tolerance and 'ext' variables. Observe your initial 
+certain pixel area), or the tolerance and 'ext' variables. Observe initial 
 results as indicated below and make adjustments where necessary:
 
 ```{r,include=FALSE}
@@ -197,14 +186,14 @@ display(final_img)
 
 # Analysis of images for producing count data:
 
-Once you have made necessary adjustments, use the following for-loop to
-analyze your images in bulk, one at a time. In this example using *Microcystis* sp.
+Once necessary adjustments have been made, the following for-loop is used to
+analyze images of interested in bulk, one at a time. In this example, using the provided demo *Microcystis* sp.
 images, the for-loop uses the "single_cell_convert" function to produce unique 
 color labels on cells within an image and to produce a final image showcasing 
 these labels using the "count_images" function. Finally, "count_cells" is used 
-to count the number of unique color labels (i.e., cells). We also have 
-integrated code to add these count results to the data frame made earlier, and 
-also to save each unique color label image to the "image_savdir" directory:
+to count the number of unique color labels (i.e., cells). Code has also been integrated in the for-loop
+to add these count results to the 'Cell.Count' data frame made earlier, and 
+to save each unique color label image to the "image_savdir" directory:
 
 ```{r}
 for (z in 1:length(images)) {
@@ -217,20 +206,20 @@ for (z in 1:length(images)) {
 }
 ```
 
-Data from the image analysis has been generated in our data frame "Cell.Count"
-that we previously made. We can use the following code to view our results:
+Data from the image analysis has been written to the data frame "Cell.Count", where
+calling the data frame can view these results:
 
 ```{r}
 Cell.Count
 ```
 
-Some images that were initially taken may be too poor of quality or contain
-high background fluorescence, among other errors. The code below analyzes 
+In same cases, some images that were initially taken may be too poor of quality or contain
+high background fluorescence, among other errors that may arise. The following code analyzes 
 outliers from the produced data, within a range of two standard deviations 
 above and below the median. The "outlier_detect" function tags which images are
 out of this range and dictates a warning within our data frame, which is shown 
 below. This alerts the end-user to perhaps re-image a particular sample, or
-to investigate the error further.
+to investigate the error further:
 
 ```{r,include=FALSE}
 outlier_detect<-function(){
@@ -249,10 +238,9 @@ Cell.Count$SD_range<-outlier_detect()
 Cell.Count
 ```
 
-In order to calculate cell density of these images, we can use the
-"cell_density" function that's built into the *cellcount* package. We first
-need to generate the total amount of cells counted from these images and
-add it to our existing data frame using the following code:
+In order to calculate cell density of these images, the
+"cell_density" function can be implemented, using equations from Wetzel and Likens, 1991. Generating the total amount of 
+cells counted from these images is needed, where it can be added to the 'Cell.Count' data frame using the following code:
 
 ```{r}
 cell.total <- as.numeric(Cell.Count$Cell_Count)
@@ -262,9 +250,9 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
 
 *Important note* - *the "null" data produced in the code above (and others that*
 *follow) fills in the blanks from the previous data produced by the* 
-*"outlier" function.*
+***outlier_detect*** *function.*
 
-Calculating cell density, taken from Wetzel and Likens 1991, requires multiple
+Calculating cell density requires multiple
 values. End-users will need the following information to precisely 
 calculate this value:
 
@@ -282,7 +270,7 @@ disseminated by your microscope camera's manufacturer. Please refer to their
 documentation to calculate your FOV variable correctly.
 
 With the variables calculated, the following code uses these variables to 
-calculate cell density and adds the data into the "Cell.Count" data frame:
+calculate cell density and adds the data into the 'Cell.Count' data frame:
 
 ```{r,include=FALSE}
 cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
@@ -298,7 +286,7 @@ cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area 
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 ```
 
-We can also calculate the average number of cells per image, as well as cells
+The average number of cells per image can also be calculated, as well as cells
 per mL using the following code. Note that 'cell.av' must be divided by the
 number of images the end-user has analyzed, and the 'cell.mL' must be divided
 by the total volume from the original sample:
@@ -311,13 +299,13 @@ cell.mL<-(cell.den/5) #change this via total volume
 Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 ```
 
-We can now view our data frame to double check for any calculation errors:
+Calling upon the 'Cell.Count' data frame can show the new generated data and to double check for any calculation errors:
 
 ```{r}
 Cell.Count
 ```
 
-Finally, we write the following code to export our finalized .csv file to our
+Finally, use the following code to export the finalized data frame to a .csv file to the
 pre-determined save directory:
 
 ```{r}
@@ -325,7 +313,7 @@ write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
 ```
 
 
-# Output data from test images in the *cellcount* package:
+# Output data from test images in the ***cellcount*** package:
 
 ### Test data results for *Microcystis* strain F-192
 ```{r,echo=FALSE}
@@ -628,31 +616,48 @@ Cell.Count
 
 # Shiny app user-interface for ***cellcount*** analysis:
 
-Several informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
-to utilize the ***cellcount*** tool. The following overview uses ***Shiny*** apps to enter input data and run image analyses. 
+Informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
+to utilize the ***cellcount*** tool. The following overview uses ***shiny*** apps to enter input data and run image analyses. Several packages are required to utilize these UI tools:
+
+- [***shiny***](https://cran.r-project.org/web/packages/shiny/index.html)
+- [***shinyalert***](https://cran.r-project.org/web/packages/shinyalert/index.html)
+- [***shinyFiles***](https://cran.r-project.org/web/packages/shinyFiles/index.html)
+- [***shinyjs***](https://cran.r-project.org/web/packages/shinyjs/index.html)
+- [***DT***](https://cran.r-project.org/web/packages/DT/index.html)
+- [***shinyBS***](https://cran.r-project.org/web/packages/shinyBS/index.html)
+
+Users can use the following code to bring packages into the R environment once the packages have been installed using CRAN:
+
+```{r,message=FALSE,warning=FALSE}
+library(shiny)
+library(shinyalert)
+library(shinyFiles)
+library(shinyjs)
+library(DT)
+library(shinyBS)
+```
 
 ### Inputting data
 The *input_data_GUI* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
-and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization. Once all data has been
-provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export 
-data to the local R environment.
+and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization and contain interactive buttons or drop-down menus to enter and select appropriate data. Some buttons change from red to green to provide an organized data entry approach. Once all data has been provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export data to the local R environment.
 
 ![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
 
 ### Running the image analysis
-
-*analyze_images_GUI* is a simple UI that contains three interactive buttons as well as a data table below. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the *input_data_GUI* function. Once the completion sound has been played (using the *beepr* package), users can click the "Refresh" button to update the table below with the analyzed data and review. Once finished with analysis, the "Close window" button to exit the UI.
+*analyze_images_GUI* is a simple UI that contains three interactive buttons as well as an interactive data table. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the *input_data_GUI* function. Once the completion sound has been played (using the ***beepr*** package), users can click the "Refresh" button to update the table below with the analyzed data and review. Once finished with analysis, the "Close window" button to exit the UI.
 
 ![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
 
 
 # Package limitations:
 
-The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. We recommend at least 16GB of localized RAM, the use of a cloud computing supercomputer (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
+The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. It is recommended to have at least 16GB of localized RAM, the ability to use cloud computing (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
 
-Users must be aware that this package does not contain abilities to identify distinct cells. The development of this package utilized carefully cultured monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned include identifying cell features and building image libraries of specific cellular species for use in environmental samples.
+Users must be aware that this package does not contain abilities to identify distinct cells. The development of this package utilized monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of specific cellular species.
 
-Outside of package limitations, users must be aware of limitations that may arise from poor microscopy imaging; reduce lighting as much as possible, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good *cellcount* results - keep this in mind as you utilize this tool.
+Outside of package limitations, users must be aware of limitations that may arise from poor microscopy imaging; reduce lighting as much as possible, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results - keep this in mind as you utilize this tool.
+
+# Conclusions:
 
 # Literature cited:
 
