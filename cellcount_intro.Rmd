@@ -1,19 +1,40 @@
 ---
 title: "Introduction to *cellcount* - Draft vignette"
-author: "*T.E. Harman, M. Vandersea, K. Pokrzywinski*"
+author: 
+  - name: Tyler E. Harman 
+    affiliation: Consolidated Safety Services, Fairfax, VA 22031, USA
+      National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+    affiliation_email: tyler.harman@noaa.gov
+    orcid_id: 0000-0001-5007-8170
+    
+  - name: Mark W. Vandersea
+    affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+    
+  - name: David E. Berthold
+    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+  
+  - name: H. Dail Laughinghouse
+    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
+    orcid_id: 0000-0003-1018-6948
+  
+  - name: Kaytee Pokrzywinski
+    affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+    orcid_id: 0000-0003-1523-9930
 date: "`r Sys.Date()`"
-abstract: >
-  The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods require specialized expertise and are error prone due to variations between researchers. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, designed in the R computing language, to quickly and accurately count various microbial morphotypes. In this open access package, fluorescent microscope images are analyzed to generate particle counts and quantify overall cell density from samples at comparable concentrations as conventional counting methods.
-output: html_document
+output: distill::distill_article
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Summary:
+
+The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods require specialized expertise and are error prone due to variations between researchers. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] designed in the R computing language, to quickly and accurately count various microbial morphotypes. In this open access package, fluorescent microscope images are analyzed to generate particle counts and quantify overall cell density from samples at comparable concentrations as conventional counting methods. In addition, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, are found on NOAA's NCCOS HAB-F [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
+
 # Getting started:
 
-***cellcount*** is an open-source R package distributed by NOAA NCCOS HAB-F on [GitHub](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories) and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
+***cellcount*** is an open-source R package distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
 
 To get started with ***cellcount***, users can make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Users may also download the package from the provided release on GitHub that contains a zipped folder with the package material. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
 
@@ -23,11 +44,11 @@ library(cellcount)
 
 In addition, the following packages are required to use functions within ***cellcount***:
 
-- [***EBImage***](http://bioconductor.org/packages/devel/bioc/vignettes/EBImage/inst/doc/EBImage-introduction.html)
-- [***tiff***](https://www.rforge.net/tiff/)
-- [***pixmap***](https://cran.r-project.org/package=pixmap)
-- [***raster***](https://cran.r-project.org/web/packages/raster/index.html)
-- [***beepr***](https://cran.r-project.org/web/packages/beepr/index.html)
+- ***EBImage*** [@Pau2010]
+- ***tiff*** [@Urbanek2022]
+- ***pixmap*** [@Bivand2021]
+- ***raster*** [@Hijmans2023]
+- ***beepr*** [@Baath2018]
 
 ***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
 
@@ -106,7 +127,7 @@ greyscale <- function(x, contrast = 2) {
   return(x)
 }
 ```
-```{r}
+```{r,fig.cap="\\label Converted greyscale image of *Microcystis* sp."}
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
 display(grey_images[[5]])
 ```
@@ -138,9 +159,9 @@ imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
 Before images are analyzed in bulk, it is encouraged to visually 
 analyze image results and determine if changes need to be made. This could include adjusting the threshold
-from the "mapped" function, the contrast from the "greyscale" function 
-(if used), or could involve making adjustments to the "single_cell_convert" or
-"filamentous_convert" functions, such as the width and height of the rectangular 
+from the *mapped* function, the contrast from the *greyscale* function 
+(if used), or could involve making adjustments to the *single_cell_convert* or
+*filamentous_convert* functions, such as the width and height of the rectangular 
 window, the pixel area threshold (i.e., removes cells or other objects under a 
 certain pixel area), or the tolerance and 'ext' variables. Observe initial 
 results as indicated below and make adjustments where necessary:
@@ -178,7 +199,7 @@ single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 
   return(image3)
 }
 ```
-```{r}
+```{r,fig.cap="A converted color-label image of *Microcystis* sp."}
 imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 display(final_img)
@@ -188,9 +209,9 @@ display(final_img)
 
 Once necessary adjustments have been made, the following for-loop is used to
 analyze images of interested in bulk, one at a time. In this example, using the provided demo *Microcystis* sp.
-images, the for-loop uses the "single_cell_convert" function to produce unique 
+images, the for-loop uses the *single_cell_convert* function to produce unique 
 color labels on cells within an image and to produce a final image showcasing 
-these labels using the "count_images" function. Finally, "count_cells" is used 
+these labels using the *count_images* function. Finally, *count_cells* is used 
 to count the number of unique color labels (i.e., cells). Code has also been integrated in the for-loop
 to add these count results to the 'Cell.Count' data frame made earlier, and 
 to save each unique color label image to the "image_savdir" directory:
@@ -216,7 +237,7 @@ Cell.Count
 In same cases, some images that were initially taken may be too poor of quality or contain
 high background fluorescence, among other errors that may arise. The following code analyzes 
 outliers from the produced data, within a range of two standard deviations 
-above and below the median. The "outlier_detect" function tags which images are
+above and below the median. The *outlier_detect* function tags which images are
 out of this range and dictates a warning within our data frame, which is shown 
 below. This alerts the end-user to perhaps re-image a particular sample, or
 to investigate the error further:
@@ -239,7 +260,7 @@ Cell.Count
 ```
 
 In order to calculate cell density of these images, the
-"cell_density" function can be implemented, using equations from Wetzel and Likens, 1991. Generating the total amount of 
+*cell_density* function can be implemented, using equations from [@Wetzel2000]. Generating the total amount of 
 cells counted from these images is needed, where it can be added to the 'Cell.Count' data frame using the following code:
 
 ```{r}
@@ -287,7 +308,7 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
 ```
 
 The average number of cells per image can also be calculated, as well as cells
-per mL using the following code. Note that 'cell.av' must be divided by the
+per mL using the following code. Note that 'cell.av' calculation must contain the
 number of images the end-user has analyzed, and the 'cell.mL' must be divided
 by the total volume from the original sample:
 
@@ -617,14 +638,14 @@ Cell.Count
 # Shiny app user-interface for ***cellcount*** analysis:
 
 Informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
-to utilize the ***cellcount*** tool. The following overview uses ***shiny*** apps to enter input data and run image analyses. Several packages are required to utilize these UI tools:
+to utilize the ***cellcount*** tool. The following overview uses 'Shiny' apps to enter input data and run image analyses. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **sandbox_analysis_test.R** script. Several packages are required to utilize these UI tools:
 
-- [***shiny***](https://cran.r-project.org/web/packages/shiny/index.html)
-- [***shinyalert***](https://cran.r-project.org/web/packages/shinyalert/index.html)
-- [***shinyFiles***](https://cran.r-project.org/web/packages/shinyFiles/index.html)
-- [***shinyjs***](https://cran.r-project.org/web/packages/shinyjs/index.html)
-- [***DT***](https://cran.r-project.org/web/packages/DT/index.html)
-- [***shinyBS***](https://cran.r-project.org/web/packages/shinyBS/index.html)
+- ***shiny*** [@Chang2022]
+- ***shinyalert*** [@1Attali2021]
+- ***shinyFiles*** [@Pedersen2022]
+- ***shinyjs*** [@2Attali2021]
+- ***DT*** [@Xie2023]
+- ***shinyBS*** [@Bailey2022]
 
 Users can use the following code to bring packages into the R environment once the packages have been installed using CRAN:
 
@@ -653,18 +674,319 @@ and selecting analysis type. Tabs to the left of the UI separate particular cate
 
 The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. It is recommended to have at least 16GB of localized RAM, the ability to use cloud computing (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
 
+Cells with a uniform chloroplast (auto-fluorescence) or fluorescent dyes illuminating the entire cell are the most useful when using this version of ***cellcount*** for enumeration purposes. Other cells such as dinoflagellates (i.e. *Karenia* sp.) that do not contain uniform chloroplasts may be more difficult to enumerate as the ***cellcount*** approach may separate these lobed chloroplasts into separate sections, causing enumeration outputs to be unreliable. In-situ hybridization dyes that target specific species or genera may be helpful if other cellular features are not useful or rather hinder in providing accurate enumeration.
+
 Users must be aware that this package does not contain abilities to identify distinct cells. The development of this package utilized monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of specific cellular species.
 
 Outside of package limitations, users must be aware of limitations that may arise from poor microscopy imaging; reduce lighting as much as possible, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results - keep this in mind as you utilize this tool.
 
 # Conclusions:
 
-# Literature cited:
+***cellcount*** provides an open-source approach to cyanobacteria enumeration that is accurate and rapid compared to standardized microscopy methods. The open-source approach allows researchers to access this tool for free and to modify and make additions the existing code to fulfill their particular needs, whereas the Shiny GUI allows users of all coding backgrounds to utilize this analysis tool.
 
-Wetzel, RG and Likens, GE. 1991. Limnological Analyses, Second Edition. Springer-
-Verlag. 391 pp.
+# Literature Cited
 
-Pau, G, Fuchs, F, Sklyar, O, Boutros, M, Huber, W. 2010. EBImage—an R package for image processing with applications to cellular phenotypes, Bioinformatics, 26(7): 979–981, https://doi.org/10.1093/bioinformatics/btq046
-
-Pokrzywinski, K, Boyd, B, Smith, J. 2019. A High-throughput Method for Counting 
-Cyanobacteria Using Fluorescence Microscopy. ERDC TR-19-21.
+---
+references:
+  - type: technical-report
+    id: Pokrzywinski2019
+    author:
+      - family: Pokrzywinski
+        given: K.
+      - family: Boyd
+        given: B.M.
+      - family: Smith
+        given: S.J.
+    issued:
+      date-parts:
+      - - 2019
+        - 8
+    title: 'A high-throughput method for counting cyanobacteria using fluorescence microscopy'
+    DOI: 10.21079/11681/33870
+    URL: https://erdc-library.erdc.dren.mil/jspui/handle/11681/33870
+    
+  - type: article-journal
+    id: Pau2010
+    author:
+      - family: Pau
+        given: G.
+      - family: Fuchs
+        given: F.
+      - family: Skylar
+        given: O.
+      - family: Boutros
+        given: M.
+      - family: Huber
+        given: W.
+    issued:
+      date-parts:
+      - - 2010
+        - 3
+        - 23
+    title: 'EBImage—an R package for image processing with applications to cellular phenotypes'
+    container-title: Bioinformatics
+    volume: 26
+    issue: 7
+    page: 979-981
+    DOI: 10.1093/bioinformatics/btq046
+    URL: https://academic.oup.com/bioinformatics/article/26/7/979/211835
+    
+  - type: package
+    id: Urbanek2022
+    author:
+      - family: Urbanek
+        given: S.
+      - family: Johnson
+        given: K.
+    issued:
+      date-parts:
+      - - 2022
+        - 1
+        - 31
+    title: 'tiff: Read and Write TIFF Images. R package version 0.1-11.'
+    URL: https://www.rforge.net/tiff/
+    
+  - type: package
+    id: Bivand2021
+    author:
+      - family: Bivand
+        given: R.
+      - family: Leisch
+        given: F.
+      - family: Maechler
+        given: Martin
+    issued:
+      date-parts:
+      - - 2021
+        - 1
+        - 29
+    title: 'Bitmap Images/Pixel Maps, R Package Version 0.4.12.'
+    URL: https://cran.r-project.org/package=pixmap
+    
+  - type: book
+    id: Wetzel2000
+    author:
+      - family: Wetzel
+        given: R.G.
+      - family: Likens
+        given: G.E.
+    issued:
+      date-parts:
+      - - 2000
+        - 3
+        - 3
+    title: 'Limnological Analyses - 3rd Edition'
+    page: 271-274
+    DOI: 10.1007/978-1-4757-3250-4
+    URL: https://link.springer.com/book/10.1007/978-1-4757-3250-4
+    
+  - type: package
+    id: Baath2018
+    author:
+      - family: Baath
+        given: R.
+      - family: Dobbyn
+        given: A.
+    issued:
+      date-parts:
+      - - 2018
+        - 6
+        - 4
+    title: 'beepr: Easily Play Notification Sounds on any Platform'
+    URL: https://cran.r-project.org/web/packages/beepr/index.html
+    
+  - type: package
+    id: Hijmans2023
+    author:
+      - family: Hijmans
+        given: R.J
+      - family: van Etten
+        given: J.
+      - family: Sumner
+        given: M.
+      - family: Cheng
+        given: J.
+      - family: Baston
+        given: D.
+      - family: Bevan
+        given: A.
+      - family: Bivand
+        given: R.
+      - family: Busetto
+        given: L.
+      - family: Canty
+        given: M.
+      - family: Fasoli
+        given: B.
+      - family: Forrest
+        given: D.
+      - family: Ghosh
+        given: A.
+      - family: Golicher
+        given: D.
+      - family: Gray
+        given: J.
+      - family: Greenburg
+        given: J.A.
+      - family: Hiemstra
+        given: P.
+      - family: Hingee
+        given: K.
+      - family: Ilich
+        given: A.
+      - family: Karney
+        given: C.
+      - family: Mattiuzzi
+        given: M.
+      - family: Mosher
+        given: S.
+      - family: Naimi
+        given: B.
+      - family: Nowosad
+        given: J.
+      - family: Pebesma
+        given: E.
+      - family: Lamigueiro
+        given: O.P.
+      - family: Racine
+        given: E.B.
+      - family: Rowlingson
+        given: B.
+      - family: Shortridge
+        given: A.
+      - family: Venables
+        given: B.
+      - family: Wueest
+        given: R.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 16
+    title: 'raster: Geographic Data Analysis and Modeling'
+    URL: https://cran.r-project.org/web/packages/raster/index.html
+    
+  - type: package
+    id: Bailey2022
+    author:
+      - family: Bailey
+        given: E.
+    issued:
+      date-parts:
+      - - 2022
+        - 4
+        - 17
+    title: 'shinyBS: Twitter Bootstrap Components for Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyBS/index.html
+    
+  - type: package
+    id: Chang2022
+    author:
+      - family: Chang
+        given: W.
+      - family: Cheng
+        given: J.
+      - family: Allaire
+        given: J.
+      - family: Boutros
+        given: M.
+      - family: Huber
+        given: W.
+    issued:
+      date-parts:
+      - - 2022
+        - 12
+        - 15
+    title: 'Shiny: Web application framework for R'
+    URL: https://cran.r-project.org/web/packages/shiny/index.html
+    
+  - type: package
+    id: Pedersen2022
+    author:
+      - family: Pedersen
+        given: T.L.
+      - family: Nijs
+        given: V.
+      - family: Schaffner
+        given: T.
+      - family: Nantz
+        given: E.
+    issued:
+      date-parts:
+      - - 2022
+        - 8
+        - 19
+    title: 'shinyFiles: A Server-Side File System Viewer for Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyFiles/index.html
+    
+  - type: package
+    id: 1Attali2021
+    author:
+      - family: Attali
+        given: D.
+      - family: Edwards
+        given: T.
+      - family: Wang
+        given: Z.
+    issued:
+      date-parts:
+      - - 2021
+        - 12
+        - 20
+    title: 'shinyalert: Easily Create Pretty Popup Messages (Modals) in Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyalert/index.html
+    
+  - type: package
+    id: 2Attali2021
+    author:
+      - family: Attali
+        given: D.
+    issued:
+      date-parts:
+      - - 2021
+        - 12
+        - 23
+    title: 'shinyjs: Easily Improve the User Experience of Your Shiny Apps in Seconds'
+    URL: https://cran.r-project.org/web/packages/shinyjs/index.html
+    
+  - type: package
+    id: Xie2023
+    author:
+      - family: Xie
+        given: Y.
+      - family: Cheng
+        given: J.
+      - family: Tan
+        given: X.
+      - family: Allaire
+        given: J.J.
+      - family: Girlich
+        given: M.
+      - family: Ellis
+        given: G.F.
+      - family: Rauh
+        given: J.
+      - family: Reavis
+        given: B.
+      - family: Gersen
+        given: L.
+      - family: Szopka
+        given: B.
+      - family: Pickering
+        given: A.
+      - family: Holmes
+        given: W.
+      - family: Marttila
+        given: M.
+      - family: Quintero
+        given: A.
+      - family: Laurent
+        given: S.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 17
+    title: 'DT: A Wrapper of the JavaScript Library DataTables'
+    URL: https://cran.r-project.org/web/packages/DT/index.html
+---
