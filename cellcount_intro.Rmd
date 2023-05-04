@@ -342,7 +342,6 @@ display(final_img)
 Cell.Count
 ```
 <br>
-<br>
 
 ```{r,include=FALSE}
 # clear environment and free unused memory
@@ -487,7 +486,6 @@ write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
 
 Cell.Count
 ```
-<br>
 <br>
 
 ```{r,include=FALSE}
