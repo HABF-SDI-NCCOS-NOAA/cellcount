@@ -30,13 +30,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Summary:
 
-The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods require specialized expertise and are error prone due to variations between researchers. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] designed in the R computing language, to quickly and accurately count various microbial morphotypes. In this open access package, fluorescent microscope images are analyzed to generate particle counts and quantify overall cell density from samples at comparable concentrations as conventional counting methods. In addition, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, are found on NOAA's NCCOS HAB-F [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
+The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods like microscopy require specialized expertise and are error prone due to variations between microscopists. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] and designed in the R computing language, to quickly and accurately count various microbial morphotypes. With this open source package, fluorescent microscope images can be analyzed to generate particle counts and quantify overall cell density from samples at a rapid speed with the accuracy of comparable conventional counting methods. Furthermore, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, can be found on NOAA's National Center for Coastal Ocean Science Harmful Algal Bloom Forecasting (NOAA NCCOS HAB-F) [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
 
 # Getting started:
 
-***cellcount*** is an open-source R package distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
+***cellcount*** is an open-source R package for enumerating particles in fluorescent microscopy images distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
 
-To get started with ***cellcount***, users can make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/) or similar programs. Users may also download the package from the provided release on GitHub that contains a zipped folder with the package material. Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
+To get started with ***cellcount***, make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/). Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
 
 ```{r}
 library(cellcount)
@@ -84,8 +84,7 @@ image_savdir <- ("./inst/extdata/test_results/")
 ```
 
 Next, images that are of interest will need to read into the R environment using
-the following code. Once again, directories will be different and must be
-updated to the correct file address. This example will use 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
+the following code. This example uses 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
 
 ```{r}
 images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
@@ -112,8 +111,7 @@ names(images) <- imgNames
 
 # Beginning the conversion process:
 
-Once images are within the R environment, the process to convert these
-images into useful data can begin. First, begin by
+Once images are within the R environment, the process to quantify particles within an image can begin. First, begin by
 converting 24-bit images into 8-bit images using the *greyscale* function (see 
 photo below). This function also has a built-in numerical contrast adjustment 
 that end-users can change:
@@ -157,8 +155,8 @@ main_adj<-pre_adj+0.2
 imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 ```
 
-Before images are analyzed in bulk, it is encouraged to visually 
-analyze image results and determine if changes need to be made. This could include adjusting the threshold
+Before images can be analyzed with batch processing, it is encouraged to visually 
+assess image results and determine if fine adjustments need to be made. This could include adjusting the threshold
 from the *mapped* function, the contrast from the *greyscale* function 
 (if used), or could involve making adjustments to the *single_cell_convert* or
 *filamentous_convert* functions, such as the width and height of the rectangular 
@@ -208,11 +206,11 @@ display(final_img)
 # Analysis of images for producing count data:
 
 Once necessary adjustments have been made, the following for-loop is used to
-analyze images of interested in bulk, one at a time. In this example, using the provided demo *Microcystis* sp.
+interatively process batch images of interest. In this example, using the provided demo *Microcystis* sp.
 images, the for-loop uses the *single_cell_convert* function to produce unique 
 color labels on cells within an image and to produce a final image showcasing 
 these labels using the *count_images* function. Finally, *count_cells* is used 
-to count the number of unique color labels (i.e., cells). Code has also been integrated in the for-loop
+to count the number of unique color labels (i.e., cells or particles). Code has also been integrated in the for-loop
 to add these count results to the 'Cell.Count' data frame made earlier, and 
 to save each unique color label image to the "image_savdir" directory:
 
@@ -227,8 +225,8 @@ for (z in 1:length(images)) {
 }
 ```
 
-Data from the image analysis has been written to the data frame "Cell.Count", where
-calling the data frame can view these results:
+Data from the image analysis will be written to the data frame "Cell.Count", where
+results can be viewed by calling the data frame:
 
 ```{r}
 Cell.Count
@@ -239,8 +237,8 @@ high background fluorescence, among other errors that may arise. The following c
 outliers from the produced data, within a range of two standard deviations 
 above and below the median. The *outlier_detect* function tags which images are
 out of this range and dictates a warning within our data frame, which is shown 
-below. This alerts the end-user to perhaps re-image a particular sample, or
-to investigate the error further:
+below. This alerts the end-user to investigate the error further where re-imaging a sample
+may be necessary:
 
 ```{r,include=FALSE}
 outlier_detect<-function(){
@@ -278,14 +276,14 @@ values. End-users will need the following information to precisely
 calculate this value:
 
 - Total counts (generated previously)
-- Height of image field of view (μm)
-- Width of image field of view (μm)
+- Height of camera field of view (μm)
+- Width of camera field of view (μm)
 - Total number of images analyzed
 - Filtration area (mm<sup>2</sup>)
 - Volume filtered per image (mL)
 - Total sample volume (mL)
 
-Field of view (FOV - mm<sup>2</sup>) is an important variable calculated from image height and
+Camera field of view (FOV - mm<sup>2</sup>) is an important variable calculated from image height and
 image width. Image height and width are variables that are taken from dimensions 
 disseminated by your microscope camera's manufacturer. Please refer to their 
 documentation to calculate your FOV variable correctly.
@@ -326,7 +324,7 @@ Calling upon the 'Cell.Count' data frame can show the new generated data and to 
 Cell.Count
 ```
 
-Finally, use the following code to export the finalized data frame to a .csv file to the
+Finally, the following code can be used to export the finalized data frame to a .csv file to the
 pre-determined save directory:
 
 ```{r}
@@ -635,8 +633,8 @@ Cell.Count
 
 # Shiny app user-interface for ***cellcount*** analysis:
 
-Informal discussions with researchers have expressed interest in a easy-to-use analysis interface for inexperienced R users
-to utilize the ***cellcount*** tool. The following overview uses 'Shiny' apps to enter input data and run image analyses. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **sandbox_analysis_test.R** script. Several packages are required to utilize these UI tools:
+Informal discussions with researchers have expressed interest in an easy-to-use analysis interface for inexperienced R users
+to utilize the ***cellcount*** package. The following overview uses 'Shiny' apps to enter input data and process images. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **sandbox_analysis_test.R** script. Several packages are required to utilize these UI tools:
 
 - ***shiny*** [@Chang2022]
 - ***shinyalert*** [@1Attali2021]
@@ -645,7 +643,7 @@ to utilize the ***cellcount*** tool. The following overview uses 'Shiny' apps to
 - ***DT*** [@Xie2023]
 - ***shinyBS*** [@Bailey2022]
 
-Users can use the following code to bring packages into the R environment once the packages have been installed using CRAN:
+The following code can be used to bring packages into the R environment once the packages have been installed using CRAN:
 
 ```{r,message=FALSE,warning=FALSE}
 library(shiny)
@@ -657,7 +655,7 @@ library(shinyBS)
 ```
 
 ### Inputting data
-The *input_data_GUI* function generates a Shiny UI where users enter information regarding directories, numerical and categorical data, 
+The *input_data_GUI* function generates a Shiny UI where users can enter information regarding directories, numerical and categorical data, 
 and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization and contain interactive buttons or drop-down menus to enter and select appropriate data. Some buttons change from red to green to provide an organized data entry approach. Once all data has been provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export data to the local R environment.
 
 ![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
@@ -672,15 +670,15 @@ and selecting analysis type. Tabs to the left of the UI separate particular cate
 
 The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. It is recommended to have at least 16GB of localized RAM, the ability to use cloud computing (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
 
-Cells with a uniform chloroplast (auto-fluorescence) or fluorescent dyes illuminating the entire cell are the most useful when using this version of ***cellcount*** for enumeration purposes. Other cells such as dinoflagellates (i.e. *Karenia* sp.) that do not contain uniform chloroplasts may be more difficult to enumerate as the ***cellcount*** approach may separate these lobed chloroplasts into separate sections, causing enumeration outputs to be unreliable. In-situ hybridization dyes that target specific species or genera may be helpful if other cellular features are not useful or rather hinder in providing accurate enumeration.
+Cells with a uniform chloroplast (auto-fluorescence) or fluorescent dyes illuminating the entire cell are the most useful when using this version of ***cellcount*** for enumeration purposes. Other cells such as dinoflagellates (i.e. *Karenia* sp.) that contain multiple discriminate chloroplasts are difficult to enumerate as the ***cellcount*** approach may separate these lobed chloroplasts into unique cells, causing enumeration outputs to be unreliable. *In-situ* hybridization dyes that target specific species or genera may be helpful if other cellular features are not acceptable in providing accurate enumeration.
 
-Users must be aware that this package does not contain abilities to identify distinct cells. The development of this package utilized monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of specific cellular species.
+Users must be aware that this package does not contain abilities to classify distinct cell types (i.e., species). The development of this package utilized monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of unique cellular species.
 
-Outside of package limitations, users must be aware of limitations that may arise from poor microscopy imaging; reduce lighting as much as possible, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results - keep this in mind as you utilize this tool.
+Outside of package limitations, users must be aware of limitations that may arise from poor microscope image quality; reduce room lighting for best results, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results.
 
 # Conclusions:
 
-***cellcount*** provides an open-source approach to cyanobacteria enumeration that is accurate and rapid compared to standardized microscopy methods. The open-source approach allows researchers to access this tool for free and to modify and make additions the existing code to fulfill their particular needs, whereas the Shiny GUI allows users of all coding backgrounds to utilize this analysis tool.
+***cellcount*** provides an open-source approach to bacteria and cyanobacteria enumeration that is accurate and rapid compared to standardized microscopy methods. The open-source approach allows researchers to access this tool for free and to modify and make additions to the existing code to fulfill particular needs, whereas the Shiny GUI allows users of all coding backgrounds to utilize this analysis tool.
 
 # Literature Cited
 
