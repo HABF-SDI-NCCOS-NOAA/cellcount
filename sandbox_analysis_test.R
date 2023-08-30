@@ -16,14 +16,14 @@ gc()
 
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 
-file_name<-paste0("E.coli_") #Change the name of species analyzed here
+file_name<-paste0("Anabena_") #Change the name of species analyzed here
 
 #Change directories here
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/CSV_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_DAPI/1C/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/quantitative_images/E.coli_100x_DAPI/1C/"
+savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_data")
+image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_results/")
+images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_images/NZ_Anabena_60x/"
                      , pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/quantitative_images/E.coli_100x_DAPI/1C/"
+images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/inst/extdata/test_images/NZ_Anabena_60x/"
                            , pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
@@ -38,9 +38,9 @@ img1<-lapply(grey_images,mapped_avg)
 
 for (j in 1:length(images)) {
   adj1<-median(img1[[j]])
-  adj2<-adj1+0.2
+  adj2<-adj1+0.15
   imagesMapped <- lapply(grey_images, mapped, threshold = adj2) #background intensity threshold adjustment
-  imagesConverted <- single_cell_convert(imagesMapped[[j]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+  imagesConverted <- filamentous_convert(imagesMapped[[j]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
   final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- count_cells(imagesConverted)
   Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[j]], count)
@@ -75,6 +75,6 @@ Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
 #cell.mL<-(cell.den/2) #change this via total volume
 #Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
-write.csv(Cell.Count, paste0(savdir, "/E.coli_1C counts.csv")) #Change this CSV file name
+write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv")) #Change this CSV file name
 
 beepr::beep(sound=2) #analysis complete
