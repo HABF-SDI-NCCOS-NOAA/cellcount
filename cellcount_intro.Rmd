@@ -30,13 +30,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Summary:
 
-The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods like microscopy require specialized expertise and are error prone due to variations between microscopists. Additionally, other methods of counting cells or particles (i.e. coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] and designed in the R computing language, to quickly and accurately count various microbial morphotypes. With this open source package, fluorescent microscope images can be analyzed to generate particle counts and quantify overall cell density from samples at a rapid speed with the accuracy of comparable conventional counting methods. Furthermore, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, can be found on NOAA's National Center for Coastal Ocean Science Harmful Algal Bloom Forecasting (NOAA NCCOS HAB-F) [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
+The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* fluorescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods like microscopy require specialized expertise and are error prone due to variations between microscopists. Additionally, other methods of counting cells or particles (i.e. Coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] and designed in the R computing language, to quickly and accurately count various microbial morphotypes. With this open source package, fluorescent microscope images can be analyzed to generate particle counts and quantify overall cell density from samples at a rapid speed with the accuracy of comparable conventional counting methods. Furthermore, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, can be found on NOAA's National Center for Coastal Ocean Science Harmful Algal Bloom Forecasting (NOAA NCCOS HAB-F) [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
 
 # Getting started:
 
 ***cellcount*** is an open-source R package for enumerating particles in fluorescent microscopy images distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
 
-To get started with ***cellcount***, make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/). Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Crtl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
+To get started with ***cellcount***, make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/). Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Ctrl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
 
 ```{r}
 library(cellcount)
@@ -69,7 +69,7 @@ library(beepr)
 After the basic supporting packages have been installed, an empty data frame can be generated to record resulting count data from the ***cellcount*** package using the following code:
 
 ```{r}
-Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 ```
 
 In order to appropriately save files from the ***cellcount*** analysis, some directories will be required; one for saving the unique color label images and another for CSV files. Please note that directory addresses will be different based on operating system and location. It is recommended to use a dedicated directory for ***cellcount*** results:
@@ -206,12 +206,12 @@ display(final_img)
 # Analysis of images for producing count data:
 
 Once necessary adjustments have been made, the following for-loop is used to
-interatively process batch images of interest. In this example, using the provided demo *Microcystis* sp.
+interactively process batch images of interest. In this example, using the provided demo *Microcystis* sp.
 images, the for-loop uses the *single_cell_convert* function to produce unique 
 color labels on cells within an image and to produce a final image showcasing 
 these labels using the *count_images* function. Finally, *count_cells* is used 
 to count the number of unique color labels (i.e., cells or particles). Code has also been integrated in the for-loop
-to add these count results to the 'Cell.Count' data frame made earlier, and 
+to add these count results to the 'Demo.Results' data frame made earlier, and 
 to save each unique color label image to the "image_savdir" directory:
 
 ```{r}
@@ -219,17 +219,17 @@ for (z in 1:length(images)) {
   imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
   final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- count_cells(imagesConverted)
-  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 ```
 
-Data from the image analysis will be written to the data frame "Cell.Count", where
+Data from the image analysis will be written to the data frame 'Demo.Results, where
 results can be viewed by calling the data frame:
 
-```{r}
-Cell.Count
+```{r,include=FALSE}
+Demo.Results
 ```
 
 In same cases, some images that were initially taken may be too poor of quality or contain
@@ -242,40 +242,36 @@ may be necessary:
 
 ```{r,include=FALSE}
 outlier_detect<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
   sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
   return(SD_range_detection)
 }
 ```
 ```{r}
-Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-Cell.Count$SD_range<-outlier_detect()
-Cell.Count
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$SD_range<-outlier_detect()
+Demo.Results
 ```
 
 In order to calculate cell density of these images, the
-*cell_density* function can be implemented, using equations from [@Wetzel2000]. Generating the total amount of 
-cells counted from these images is needed, where it can be added to the 'Cell.Count' data frame using the following code:
+*cell_density* function can be implemented, using equations from [@Wetzel2000]. The output results need to then be converted
+to a cell density variable, where it can be added to the 'Demo.Results' data frame using the following code:
 
 ```{r}
-cell.total <- as.numeric(Cell.Count$Cell_Count)
+cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
 ```
-
-*Important note* - *the "null" data produced in the code above (and others that*
-*follow) fills in the blanks from the previous data produced by the* 
-***outlier_detect*** *function.*
 
 Calculating cell density requires multiple
 values. End-users will need the following information to precisely 
 calculate this value:
 
-- Total counts (generated previously)
+- Total counts (generated previously using this package)
 - Height of camera field of view (μm)
 - Width of camera field of view (μm)
 - Total number of images analyzed
@@ -289,7 +285,7 @@ disseminated by your microscope camera's manufacturer. Please refer to their
 documentation to calculate your FOV variable correctly.
 
 With the variables calculated, the following code uses these variables to 
-calculate cell density and adds the data into the 'Cell.Count' data frame:
+calculate cell density and adds the data into the 'Demo.Results' data frame:
 
 ```{r,include=FALSE}
 cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
@@ -302,42 +298,46 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
 ```
 ```{r}
 cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
 ```
 
 The average number of cells per image can also be calculated, as well as cells
 per mL using the following code. Note that 'cell.av' calculation must contain the
-number of images the end-user has analyzed, and the 'cell.mL' must be divided
-by the total volume from the original sample:
+number of images the end-user has analyzed (excluding poor quality images and outliers), 
+and the 'cell.mL' must be divided by the total volume from the original sample where the
+filtered subsample was aliquotted from:
 
 ```{r}
 cell.av<-(cell.total/10) #change this via total number of images
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
 
 cell.mL<-(cell.den/5) #change this via total volume
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
 ```
 
-Calling upon the 'Cell.Count' data frame can show the new generated data and to double check for any calculation errors:
+Calling upon the 'Demo.Results' data frame can show the new generated data and to double check for any calculation errors:
 
-```{r}
-Cell.Count
+```{r,include=FALSE}
+Demo.Results
 ```
 
 Finally, the following code can be used to export the finalized data frame to a .csv file to the
 pre-determined save directory:
 
 ```{r}
-write.csv(Cell.Count, paste0(savdir, "/F192_Test counts.csv"))
+write.csv(Demo.Results, paste0(savdir, "/F192_Test counts.csv"))
 ```
 
 
-# Output data from test images in the ***cellcount*** package:
+# Output data from test images in 
+#the ***cellcount*** package:
 
 ### Test data results for *Microcystis* strain F-192
 ```{r,echo=FALSE}
 display(final_img)
-Cell.Count
+Demo.Results
 ```
 <br>
 
@@ -347,7 +347,7 @@ rm(list=ls())
 gc()
 ```
 
-### Test data results for *Anabena* sp.
+### Test data results for *Anabaena* sp.
 ```{r,include=FALSE}
 greyscale <- function(x, contrast = 2) {
   x <- contrast * x
@@ -409,18 +409,18 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   return(cyano_total)
 }
 outlier_detect<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
   sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
   return(SD_range_detection)
 }
 ```
 
 ```{r,echo=FALSE}
-Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 
 file_name<-paste0("img_")
 
@@ -458,31 +458,35 @@ for (z in 1:length(images)) {
   imagesConverted <- filamentous_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
   final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- count_cells(imagesConverted)
-  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
-Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-Cell.Count$SD_range<-outlier_detect()
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$SD_range<-outlier_detect()
 
-cell.total <- as.numeric(Cell.Count$Cell_Count)
+cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
 
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
 
 cell.den <- cell_density(cell.total, FOV = 0.027770534, images = 10, filtration.area = 213.8, volume = 0.5, total.volume =15)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
 
 cell.av<-(cell.total/10)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
 
 cell.mL<-(cell.den/15)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
 
-write.csv(Cell.Count, paste0(savdir, "/Anabena_test counts.csv"))
 
-Cell.Count
+
+write.csv(Demo.Results, paste0(savdir, "/Anabena_test counts.csv"))
+
+Demo.Results
 ```
 <br>
 
@@ -554,18 +558,18 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   return(cyano_total)
 }
 outlier_detect<-function(){
-  mean<-median(Cell.Count$Cell_Count)
-  sd<-sd(Cell.Count$Cell_Count)*2
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
   sd_pos<-(mean+sd)
-  SD_range_detection<-ifelse(sd_pos>Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)&
-    ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
   return(SD_range_detection)
 }
 ```
 
 ```{r,echo=FALSE}
-Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
 
 file_name<-paste0("img_")
 
@@ -603,31 +607,33 @@ for (z in 1:length(images)) {
   imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
   final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- count_cells(imagesConverted)
-  Cell.Count[nrow(Cell.Count) + 1, ] <- c(imgNames[[z]], count)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
   writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
-Cell.Count$Cell_Count<-as.numeric(Cell.Count$Cell_Count)
-Cell.Count$SD_range<-outlier_detect()
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$SD_range<-outlier_detect()
 
-cell.total <- as.numeric(Cell.Count$Cell_Count)
+cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
 
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Total", cell.total,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
 
 cell.den <- cell_density(cell.total, FOV = 0.00042, images = 10, filtration.area = 213.8, volume = 0.02, total.volume =2)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Cell Density", cell.den,"null")
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
 
 cell.av<-(cell.total/10)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Imaging Average",cell.av,"null")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
 
 cell.mL<-(cell.den/2)
-Cell.Count[nrow(Cell.Count) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
 
-write.csv(Cell.Count, paste0(savdir, "/Shewanella_test counts.csv"))
+write.csv(Demo.Results, paste0(savdir, "/Shewanella_test counts.csv"))
 
-Cell.Count
+Demo.Results
 ```
 
 
@@ -666,13 +672,13 @@ and selecting analysis type. Tabs to the left of the UI separate particular cate
 ![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
 
 
-# Package limitations:
+# Package limitations/constraints:
 
 The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. It is recommended to have at least 16GB of localized RAM, the ability to use cloud computing (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
 
 Cells with a uniform chloroplast (auto-fluorescence) or fluorescent dyes illuminating the entire cell are the most useful when using this version of ***cellcount*** for enumeration purposes. Other cells such as dinoflagellates (i.e. *Karenia* sp.) that contain multiple discriminate chloroplasts are difficult to enumerate as the ***cellcount*** approach may separate these lobed chloroplasts into unique cells, causing enumeration outputs to be unreliable. *In-situ* hybridization dyes that target specific species or genera may be helpful if other cellular features are not acceptable in providing accurate enumeration.
 
-Users must be aware that this package does not contain abilities to classify distinct cell types (i.e., species). The development of this package utilized monoculture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of unique cellular species.
+Users must be aware that this package does not contain abilities to classify distinct cell types (i.e., species). The development of this package utilized mono-culture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of unique cellular species.
 
 Outside of package limitations, users must be aware of limitations that may arise from poor microscope image quality; reduce room lighting for best results, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results.
 
