@@ -19,7 +19,7 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-##[Section 508](https://oceanservice.noaa.gov/accessibility-statement.html)
+[##Section 508](https://oceanservice.noaa.gov/accessibility-statement.html)
 
 The National Ocean Service is committed to making its website accessible to the widest possible audience, including people with disabilities, in accordance with Section 508 of the Rehabilitation Act (29 U.S.C. 794d).
 
