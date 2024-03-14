@@ -8,6 +8,8 @@ The ***cellcount*** package provides a simple an automated approach to quantifyi
 
 Please refer to the *"cellcount_intro"* documentation to learn more about the package and how this tool can apply to your research.
 
+Citation: Harman TE, Vandersea MW, Pokrzywinski K. 2024. cellcount (R package version 1.0.0.0002). [date accessed ]. https://github.com/HABF-SDI-NCCOS-NOAA/HABF_cellcount
+
 Refer any errors or issues to: tyler.harman@noaa.gov
 
 ## Legal Disclaimer:
