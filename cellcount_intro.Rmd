@@ -2,22 +2,14 @@
 title: "Introduction to *cellcount* - Draft vignette"
 author: 
   - name: Tyler E. Harman 
-    affiliation: Consolidated Safety Services, Fairfax, VA 22031, USA
-      National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+    affiliation: Consolidated Safety Services (Contracted to NOAA NCCOS), Fairfax, VA 22031, USA
     affiliation_email: tyler.harman@noaa.gov
     orcid_id: 0000-0001-5007-8170
     
   - name: Mark W. Vandersea
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
-    
-  - name: David E. Berthold
-    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
   
-  - name: H. Dail Laughinghouse
-    affiliation: Department of Biological Sciences, Florida International University, Miami, FL 33199, USA
-    orcid_id: 0000-0003-1018-6948
-  
-  - name: Kaytee Pokrzywinski
+  - name: Kaytee Pokrzywinski, PhD
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
     orcid_id: 0000-0003-1523-9930
 date: "`r Sys.Date()`"
@@ -79,16 +71,16 @@ savdir <- ("C:/file path for saving CSV data")
 image_savdir <- ("C:/file path for saving converted images")
 ```
 ```{r,include=FALSE}
-savdir <- ("./inst/extdata/test_data/")
-image_savdir <- ("./inst/extdata/test_results/")
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
 ```
 
 Next, images that are of interest will need to read into the R environment using
 the following code. This example uses 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
 
 ```{r}
-images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
-images_names <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
 In addition, users can assign additional identifications to each file for easy organization, as shown here:
@@ -424,10 +416,10 @@ Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(
 
 file_name<-paste0("img_")
 
-savdir <- ("./inst/extdata/test_data/")
-image_savdir <- ("./inst/extdata/test_results/")
-images <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
-images_names <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -573,10 +565,10 @@ Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(
 
 file_name<-paste0("img_")
 
-savdir <- ("./inst/extdata/test_data/")
-image_savdir <- ("./inst/extdata/test_results/")
-images <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
-images_names <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -640,7 +632,8 @@ Demo.Results
 # Shiny app user-interface for ***cellcount*** analysis:
 
 Informal discussions with researchers have expressed interest in an easy-to-use analysis interface for inexperienced R users
-to utilize the ***cellcount*** package. The following overview uses 'Shiny' apps to enter input data and process images. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **sandbox_analysis_test.R** script. Several packages are required to utilize these UI tools:
+to utilize the ***cellcount*** package. The following overview uses 'Shiny' apps to enter input data and process images. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **cellcount_sandbox.R** script under the
+<span style="text-decoration:underline">*cellcount_files_HABF*</span> folder. Several packages are required to utilize these UI tools:
 
 - ***shiny*** [@Chang2022]
 - ***shinyalert*** [@1Attali2021]
