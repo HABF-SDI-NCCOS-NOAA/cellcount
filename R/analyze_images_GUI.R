@@ -39,7 +39,7 @@ analyze_images_GUI<-function(){
     })
     observeEvent(input$buttonId, {
       message("running analyze_img.R")
-      source("analyze_img.R")
+      source("cellcount_files_HABF/analyze_img.R")
     })
     onclick("BRefresh",{
       proxy=dataTableProxy("data")
