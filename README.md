@@ -1,6 +1,8 @@
 # cellcount_main
 R package "cellcount" for cell enumeration using fluorescent microscopy
 
+*Developed by NOAA NCCOS - SDI - HAB Forecasting Branch*
+
 ## Overview:
 The ***cellcount*** package provides a simple an automated approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, ***cellcount***, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 
@@ -19,4 +21,10 @@ favoring by the Department of Commerce. The Department of Commerce seal and logo
 DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by
 DOC or the United States Government.
 
-*Developed by NOAA NCCOS - SDI - HAB Forecasting Branch*
+## [Section 508](https://oceanservice.noaa.gov/accessibility-statement.html)
+
+The National Ocean Service is committed to making its website accessible to the widest possible audience, including people with disabilities, in accordance with Section 508 of the Rehabilitation Act (29 U.S.C. 794d).
+
+Section 508 is a federal law that requires agencies to provide individuals with disabilities equal access to electronic information and data comparable to those who do not have disabilities, unless an undue burden would be imposed on the agency.
+
+The Section 508 standards are the technical requirements and criteria that are used to measure conformance within this law. More information on Section 508 and the technical standards can be found at Section508.gov.
