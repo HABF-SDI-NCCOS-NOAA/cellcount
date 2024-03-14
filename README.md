@@ -6,12 +6,19 @@ R package "cellcount" for cell enumeration using fluorescent microscopy
 ## Overview:
 The ***cellcount*** package provides a simple an automated approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, ***cellcount***, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
 
-Please refer to the *"cellcount_intro.html"* documentation file to learn more about the package and how this tool can apply to your research.
+Please refer to the *"cellcount_intro.html"* documentation file to learn more about the package, analyze demo data, and explore how this tool can apply to your research.
 
 Citation: Harman TE, Vandersea MW, Pokrzywinski K. 2024. cellcount (R package version 1.0.0.0002). [date accessed ]. https://github.com/HABF-SDI-NCCOS-NOAA/HABF_cellcount
 
 Refer any errors or issues to: tyler.harman@noaa.gov
 
+## Package installation:
+
+To get started with cellcount, make a local clone of the repository using programs like GitHub Desktop or download the project file directly from this repository. Save the folder in an easily accessible location. Once cloned, open the R project file within the RStudio IDE and install the package locally by selecting *build*>*install package*, or use the shortcut Ctrl+Shift+B (Cmd+Shift+B for MacOS users). Once the cellcount package is installed, the following code can be used to bring cellcount into the R environment:
+
+```{r}
+library(cellcount)
+```
 ## Legal Disclaimer:
 This repository is a scientific product and is not official communication of the National Oceanic and
 Atmospheric Administration, or the United States Department of Commerce. All NOAA GitHub project code is
