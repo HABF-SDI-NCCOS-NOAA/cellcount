@@ -61,7 +61,7 @@ outlier<-function(){
   return(SD_range_detection)
 }
 
-Cell.Count$SD_range<-outlier()
+Cell.Count$within_outlier_range<-outlier()
 
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
