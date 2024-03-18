@@ -1,5 +1,4 @@
 # HAB-F_cellcount
-R package "cellcount" for cell enumeration using fluorescent microscopy
 
 *Developed by NOAA NCCOS - SDI - HAB Forecasting Branch*
 
