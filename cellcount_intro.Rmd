@@ -245,7 +245,7 @@ outlier_detect<-function(){
 ```
 ```{r}
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$SD_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier_detect()
 Demo.Results
 ```
 
@@ -456,7 +456,7 @@ for (z in 1:length(images)) {
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$SD_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier_detect()
 
 cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
@@ -605,7 +605,7 @@ for (z in 1:length(images)) {
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$SD_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier_detect()
 
 cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
