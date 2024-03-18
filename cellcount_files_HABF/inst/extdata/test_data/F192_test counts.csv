@@ -1,4 +1,4 @@
-"","Image_File_Name","Cell_Count","SD_range"
+"","Image_File_Name","Cell_Count","within_outlier_range"
 "1","F192_Microcystis_Demo_01.tif","190","TRUE"
 "2","F192_Microcystis_Demo_02.tif","183","TRUE"
 "3","F192_Microcystis_Demo_03.tif","233","TRUE"
