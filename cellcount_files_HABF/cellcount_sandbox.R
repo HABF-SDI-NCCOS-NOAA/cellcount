@@ -19,12 +19,13 @@ Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0)
 file_name<-paste0("E.coli_") #Change the name of species analyzed here
 
 #Change directories here
-savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_main/cellcount_data/CSV_data/")
-image_savdir <- ("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/Convert_Images/E.coli_100x_qPCR/Rep 3/Con_E/")
-images <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/quantitative_images/E.coli_100x_qPCR/Rep 3/Con_E/"
-                     , pattern = "tif", full.name = T)
-images_names <- list.files("C:/Users/Tyler.Harman/Desktop/cellcount_work/cellcount_data/quantitative_images/E.coli_100x_qPCR/Rep 3/Con_E/"
-                           , pattern = "tif", full.name = F)
+savdir <- ("./CSV_data/") #Change save directory for .csv file data here
+image_savdir <- ("./Convert_Images/E.coli_100x_qPCR/Rep 3/Con_E/") #Change the save directory for analyzed images
+
+images <- list.files("./quantitative_images/E.coli_100x_qPCR/Rep 3/Con_E/"
+                     , pattern = "tif", full.name = T) #List the location of the raw images here
+images_names <- list.files("./quantitative_images/E.coli_100x_qPCR/Rep 3/Con_E/"
+                           , pattern = "tif", full.name = F) #List the location of the raw images here
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
