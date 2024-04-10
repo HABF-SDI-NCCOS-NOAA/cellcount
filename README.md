@@ -1,4 +1,4 @@
-# HAB-F_cellcount
+# HAB-F_cellcount <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 *Developed by NOAA NCCOS - SDI - HAB Forecasting Branch*
 
