@@ -1,0 +1,987 @@
+---
+title: "Introduction to *cellcount* - Draft vignette"
+author: 
+  - name: Tyler E. Harman 
+    affiliation: Consolidated Safety Services (Contracted to NOAA NCCOS), Fairfax, VA 22031, USA
+    affiliation_email: tyler.harman@noaa.gov
+    orcid_id: 0000-0001-5007-8170
+    
+  - name: Mark W. Vandersea
+    affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+  
+  - name: Kaytee Pokrzywinski, PhD
+    affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
+    orcid_id: 0000-0003-1523-9930
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Summary:
+
+The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* fluorescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods like microscopy require specialized expertise and are error prone due to variations between microscopists. Additionally, other methods of counting cells or particles (i.e. Coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] and designed in the R computing language, to quickly and accurately count various microbial morphotypes. With this open source package, fluorescent microscope images can be analyzed to generate particle counts and quantify overall cell density from samples at a rapid speed with the accuracy of comparable conventional counting methods. Furthermore, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, can be found on NOAA's National Center for Coastal Ocean Science Harmful Algal Bloom Forecasting (NOAA NCCOS HAB-F) [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
+
+# Getting started:
+
+***cellcount*** is an open-source R package for enumerating particles in fluorescent microscopy images distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
+
+To get started with ***cellcount***, make a local clone of the repository using programs like [GitHub Desktop](https://desktop.github.com/). Once cloned, open the R project file and install the package locally by selecting 'build' and 'install package', or use the shortcut Ctrl+Shift+B (Cmd+Shift+B for MacOS users). Once the ***cellcount*** package is installed, the following code can be used to bring ***cellcount*** into the R environment:
+
+```{r}
+library(cellcount)
+```
+
+In addition, the following packages are required to use functions within ***cellcount***:
+
+- ***EBImage*** [@Pau2010]
+- ***tiff*** [@Urbanek2022]
+- ***pixmap*** [@Bivand2021]
+- ***raster*** [@Hijmans2023]
+- ***beepr*** [@Baath2018]
+
+***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
+
+```{r, message=FALSE}
+if (!require("EBImage")) {
+  BiocManager::install("EBImage")
+}
+library(EBImage)
+
+library(tiff)
+library(pixmap)
+library(raster)
+library(beepr)
+```
+
+# Setting up directories/reading files:
+
+After the basic supporting packages have been installed, an empty data frame can be generated to record resulting count data from the ***cellcount*** package using the following code:
+
+```{r}
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+```
+
+In order to appropriately save files from the ***cellcount*** analysis, some directories will be required; one for saving the unique color label images and another for CSV files. Please note that directory addresses will be different based on operating system and location. It is recommended to use a dedicated directory for ***cellcount*** results:
+
+```{r,message=FALSE}
+savdir <- ("C:/file path for saving CSV data")
+image_savdir <- ("C:/file path for saving converted images")
+```
+```{r,include=FALSE}
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+```
+
+Next, images that are of interest will need to read into the R environment using
+the following code. This example uses 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
+
+```{r}
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+```
+
+In addition, users can assign additional identifications to each file for easy organization, as shown here:
+
+```{r}
+file_name<-paste0("F192_")
+```
+
+Images from the assigned directory can now be "read" into the environment for analysis. The
+following code outlines this step using the *readTIFF* function from the 
+***tiff*** package. In addition, images will need to be re-oriented as the *readTIFF* function uploads images in a portrait 
+format. The *aperm* function shown below re-orients the uploaded image to a landscape format:
+
+```{r, warning=FALSE}
+imgNames <- paste0(file_name, images_names)
+read_images <- lapply(images, readTIFF)
+img_transposed <- lapply(read_images,aperm,c(2,1,3))
+names(images) <- imgNames
+```
+
+# Beginning the conversion process:
+
+Once images are within the R environment, the process to quantify particles within an image can begin. First, begin by
+converting 24-bit images into 8-bit images using the *greyscale* function (see 
+photo below). This function also has a built-in numerical contrast adjustment 
+that end-users can change:
+
+```{r,include=FALSE}
+greyscale <- function(x, contrast = 2) {
+  x <- contrast * x
+  x <- x[, , 1] + x[, , 2] + x[, , 3]
+  x <- x / max(x)
+  x <- normalize(x, inputRange = c(0.1, 0.75))
+  return(x)
+}
+```
+```{r,fig.cap="\\label Converted greyscale image of *Microcystis* sp."}
+grey_images <- lapply(img_transposed, greyscale, contrast = 1)
+display(grey_images[[5]])
+```
+
+The *mapped* function turns the converted 8-bit image into a data matrix. An additional function to 
+determine the median intensity of each image is also used. From this, users can add a numerical
+buffer on top of the determined median intensity, giving a more accurate approach
+to separating the background intensity from the intensity of cells within each
+image. For example, if an image has a median intensity of 0.05, with a numerical buffer of 0.2,
+the threshold is equal to 0.25. Any pixel within the image below 0.25 will be omitted from the matrix and assigned a value of zero.
+
+```{r,include=FALSE}
+mapped <- function(x, threshold = 0.3) {
+  x <- as.matrix(x)
+  x[x < threshold] <- 0
+  return(x)
+}
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+```
+```{r}
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
+```
+
+Before images can be analyzed with batch processing, it is encouraged to visually 
+assess image results and determine if fine adjustments need to be made. This could include adjusting the threshold
+from the *mapped* function, the contrast from the *greyscale* function 
+(if used), or could involve making adjustments to the *single_cell_convert* or
+*filamentous_convert* functions, such as the width and height of the rectangular 
+window, the pixel area threshold (i.e., removes cells or other objects under a 
+certain pixel area), or the tolerance and 'ext' variables. Observe initial 
+results as indicated below and make adjustments where necessary:
+
+```{r,include=FALSE}
+border <- function(x, y) {
+  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
+}
+count_cells <- function(x) {
+  countAll <- max(x)
+  dims <- dim(x)
+  border1 <- border(x, dims)
+  ids <- unique(border1[which(border1 != 0)])
+  countInner <- countAll - length(ids)
+  return(countInner)
+}
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+  if (removeEdgeCells) {
+    dims <- dim(image)
+    border1 <- border(image, dims)
+    ids <- unique(border1[which(border1 != 0)])
+    inner <- rmObjects(image, ids)
+    EBImage::colorLabels(inner, normalize = normalize)
+  } else {
+    EBImage::colorLabels(image, normalize = normalize)
+  }
+}
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- fillHull(image)
+  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+```
+```{r,fig.cap="A converted color-label image of *Microcystis* sp."}
+imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+display(final_img)
+```
+
+# Analysis of images for producing count data:
+
+Once necessary adjustments have been made, the following for-loop is used to
+interactively process batch images of interest. In this example, using the provided demo *Microcystis* sp.
+images, the for-loop uses the *single_cell_convert* function to produce unique 
+color labels on cells within an image and to produce a final image showcasing 
+these labels using the *count_images* function. Finally, *count_cells* is used 
+to count the number of unique color labels (i.e., cells or particles). Code has also been integrated in the for-loop
+to add these count results to the 'Demo.Results' data frame made earlier, and 
+to save each unique color label image to the "image_savdir" directory:
+
+```{r}
+for (z in 1:length(images)) {
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
+  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
+  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+}
+```
+
+Data from the image analysis will be written to the data frame 'Demo.Results, where
+results can be viewed by calling the data frame:
+
+```{r,include=FALSE}
+Demo.Results
+```
+
+In same cases, some images that were initially taken may be too poor of quality or contain
+high background fluorescence, among other errors that may arise. The following code analyzes 
+outliers from the produced data, within a range of two standard deviations 
+above and below the median. The *outlier_detect* function tags which images are
+out of this range and dictates a warning within our data frame, which is shown 
+below. This alerts the end-user to investigate the error further where re-imaging a sample
+may be necessary:
+
+```{r,include=FALSE}
+outlier_detect<-function(){
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
+  return(SD_range_detection)
+}
+```
+```{r}
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$within_outlier_range<-outlier_detect()
+Demo.Results
+```
+
+In order to calculate cell density of these images, the
+*cell_density* function can be implemented, using equations from [@Wetzel2000]. The output results need to then be converted
+to a cell density variable, where it can be added to the 'Demo.Results' data frame using the following code:
+
+```{r}
+cell.total <- as.numeric(Demo.Results$Cell_Count)
+cell.total <- sum(cell.total)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+```
+
+Calculating cell density requires multiple
+values. End-users will need the following information to precisely 
+calculate this value:
+
+- Total counts (generated previously using this package)
+- Height of camera field of view (μm)
+- Width of camera field of view (μm)
+- Total number of images analyzed
+- Filtration area (mm<sup>2</sup>)
+- Volume filtered per image (mL)
+- Total sample volume (mL)
+
+Camera field of view (FOV - mm<sup>2</sup>) is an important variable calculated from image height and
+image width. Image height and width are variables that are taken from dimensions 
+disseminated by your microscope camera's manufacturer. Please refer to their 
+documentation to calculate your FOV variable correctly.
+
+With the variables calculated, the following code uses these variables to 
+calculate cell density and adds the data into the 'Demo.Results' data frame:
+
+```{r,include=FALSE}
+cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
+  MCF <- filtration.area / FOV
+  N <- x / images
+  cyano <- (MCF * N) / volume
+  cyano_total <- cyano * total.volume
+  return(cyano_total)
+}
+```
+```{r}
+cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5)
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+```
+
+The average number of cells per image can also be calculated, as well as cells
+per mL using the following code. Note that 'cell.av' calculation must contain the
+number of images the end-user has analyzed (excluding poor quality images and outliers), 
+and the 'cell.mL' must be divided by the total volume from the original sample where the
+filtered subsample was aliquotted from:
+
+```{r}
+cell.av<-(cell.total/10) #change this via total number of images
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+
+cell.mL<-(cell.den/5) #change this via total volume
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+```
+
+Calling upon the 'Demo.Results' data frame can show the new generated data and to double check for any calculation errors:
+
+```{r,include=FALSE}
+Demo.Results
+```
+
+Finally, the following code can be used to export the finalized data frame to a .csv file to the
+pre-determined save directory:
+
+```{r}
+write.csv(Demo.Results, paste0(savdir, "/F192_Test counts.csv"))
+```
+
+
+# Output data from test images in 
+#the ***cellcount*** package:
+
+### Test data results for *Microcystis* strain F-192
+```{r,echo=FALSE}
+display(final_img)
+Demo.Results
+```
+<br>
+
+```{r,include=FALSE}
+# clear environment and free unused memory
+rm(list=ls())
+gc()
+```
+
+### Test data results for *Anabaena* sp.
+```{r,include=FALSE}
+greyscale <- function(x, contrast = 2) {
+  x <- contrast * x
+  x <- x[, , 1] + x[, , 2] + x[, , 3]
+  x <- x / max(x)
+  x <- normalize(x, inputRange = c(0.1, 0.75))
+  return(x)
+}
+mapped <- function(x, threshold = 0.3) {
+  x <- as.matrix(x)
+  x[x < threshold] <- 0
+  return(x)
+}
+border <- function(x, y) {
+  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
+}
+count_cells <- function(x) {
+  countAll <- max(x)
+  dims <- dim(x)
+  border1 <- border(x, dims)
+  ids <- unique(border1[which(border1 != 0)])
+  countInner <- countAll - length(ids)
+  return(countInner)
+}
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+  if (removeEdgeCells) {
+    dims <- dim(image)
+    border1 <- border(image, dims)
+    ids <- unique(border1[which(border1 != 0)])
+    inner <- rmObjects(image, ids)
+    EBImage::colorLabels(inner, normalize = normalize)
+  } else {
+    EBImage::colorLabels(image, normalize = normalize)
+  }
+}
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- fillHull(image)
+  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- fillHull(image1)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
+  MCF <- filtration.area / FOV
+  N <- x / images
+  cyano <- (MCF * N) / volume
+  cyano_total <- cyano * total.volume
+  return(cyano_total)
+}
+outlier_detect<-function(){
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
+  return(SD_range_detection)
+}
+```
+
+```{r,echo=FALSE}
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+
+file_name<-paste0("img_")
+
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
+
+imgNames <- paste0(file_name, images_names)
+read_images <- lapply(images, readTIFF)
+img_transposed <- lapply(read_images,aperm,c(2,1,3))
+names(images) <- imgNames
+
+grey_images <- lapply(img_transposed, greyscale, contrast = 1)
+
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
+
+imagesConverted <- filamentous_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+display(final_img)
+```
+
+```{r,echo=FALSE}
+for (z in 1:length(images)) {
+  adj1<-median(img1[[z]])
+  adj2<-adj1+0.2
+  imagesMapped <- lapply(grey_images, mapped, threshold = adj2)
+  imagesConverted <- filamentous_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
+  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
+  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+}
+
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$within_outlier_range<-outlier_detect()
+
+cell.total <- as.numeric(Demo.Results$Cell_Count)
+cell.total <- sum(cell.total)
+
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+
+cell.den <- cell_density(cell.total, FOV = 0.027770534, images = 10, filtration.area = 213.8, volume = 0.5, total.volume =15)
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+
+cell.av<-(cell.total/10)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+
+cell.mL<-(cell.den/15)
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+
+
+
+write.csv(Demo.Results, paste0(savdir, "/Anabena_test counts.csv"))
+
+Demo.Results
+```
+<br>
+
+```{r,include=FALSE}
+# clear environment and free unused memory
+rm(list=ls())
+gc()
+```
+
+### Test data results for *Shewanella* IRI-160
+```{r,include=FALSE}
+greyscale <- function(x, contrast = 2) {
+  x <- contrast * x
+  x <- x[, , 1] + x[, , 2] + x[, , 3]
+  x <- x / max(x)
+  x <- normalize(x, inputRange = c(0.1, 0.75))
+  return(x)
+}
+mapped <- function(x, threshold = 0.3) {
+  x <- as.matrix(x)
+  x[x < threshold] <- 0
+  return(x)
+}
+border <- function(x, y) {
+  c(x[1:y[1], 1], x[1:y[1], y[2]], x[1, 1:y[2]], x[y[1], 1:y[2]])
+}
+count_cells <- function(x) {
+  countAll <- max(x)
+  dims <- dim(x)
+  border1 <- border(x, dims)
+  ids <- unique(border1[which(border1 != 0)])
+  countInner <- countAll - length(ids)
+  return(countInner)
+}
+count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
+  if (removeEdgeCells) {
+    dims <- dim(image)
+    border1 <- border(image, dims)
+    ids <- unique(border1[which(border1 != 0)])
+    inner <- rmObjects(image, ids)
+    EBImage::colorLabels(inner, normalize = normalize)
+  } else {
+    EBImage::colorLabels(image, normalize = normalize)
+  }
+}
+single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- fillHull(image)
+  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
+  image <- thresh(x, w = w, h = h, offset = offset)
+  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- fillHull(image1)
+  nf <- computeFeatures.shape(image2)
+  nr <- which(nf[, "s.area"] < areathresh)
+  image3 <- rmObjects(image2, nr)
+  return(image3)
+}
+cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
+  MCF <- filtration.area / FOV
+  N <- x / images
+  cyano <- (MCF * N) / volume
+  cyano_total <- cyano * total.volume
+  return(cyano_total)
+}
+outlier_detect<-function(){
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
+  return(SD_range_detection)
+}
+```
+
+```{r,echo=FALSE}
+Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
+
+file_name<-paste0("img_")
+
+savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
+image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
+images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
+
+imgNames <- paste0(file_name, images_names)
+read_images <- lapply(images, readTIFF)
+img_transposed <- lapply(read_images,aperm,c(2,1,3))
+names(images) <- imgNames
+
+grey_images <- lapply(img_transposed, greyscale, contrast = 1)
+
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+img1<-lapply(grey_images,mapped_avg)
+pre_adj<-median(img1[[5]])
+main_adj<-pre_adj+0.2
+imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
+
+imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+display(final_img)
+```
+
+```{r,echo=FALSE}
+for (z in 1:length(images)) {
+  adj1<-median(img1[[z]])
+  adj2<-adj1+0.2
+  imagesMapped <- lapply(grey_images, mapped, threshold = adj2)
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+  final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
+  count <- count_cells(imagesConverted)
+  Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
+  analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
+  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+}
+
+Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
+Demo.Results$within_outlier_range<-outlier_detect()
+
+cell.total <- as.numeric(Demo.Results$Cell_Count)
+cell.total <- sum(cell.total)
+
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+
+cell.den <- cell_density(cell.total, FOV = 0.00042, images = 10, filtration.area = 213.8, volume = 0.02, total.volume =2)
+cell.den <- round(cell.den,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+
+cell.av<-(cell.total/10)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+
+cell.mL<-(cell.den/2)
+cell.mL <- round(cell.mL,2)
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+
+write.csv(Demo.Results, paste0(savdir, "/Shewanella_test counts.csv"))
+
+Demo.Results
+```
+
+
+# Shiny app user-interface for ***cellcount*** analysis:
+
+Informal discussions with researchers have expressed interest in an easy-to-use analysis interface for inexperienced R users
+to utilize the ***cellcount*** package. The following overview uses 'Shiny' apps to enter input data and process images. This results in the use of two functions, *input_data_GUI* and *analyze images_GUI*, to run the entire analysis process as outlined previously, and in the **cellcount_sandbox.R** script under the
+<span style="text-decoration:underline">*cellcount_files_HABF*</span> folder. Several packages are required to utilize these UI tools:
+
+- ***shiny*** [@Chang2022]
+- ***shinyalert*** [@1Attali2021]
+- ***shinyFiles*** [@Pedersen2022]
+- ***shinyjs*** [@2Attali2021]
+- ***DT*** [@Xie2023]
+- ***shinyBS*** [@Bailey2022]
+
+The following code can be used to bring packages into the R environment once the packages have been installed using CRAN:
+
+```{r,message=FALSE,warning=FALSE}
+library(shiny)
+library(shinyalert)
+library(shinyFiles)
+library(shinyjs)
+library(DT)
+library(shinyBS)
+```
+
+### Inputting data
+The *input_data_GUI* function generates a Shiny UI where users can enter information regarding directories, numerical and categorical data, 
+and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization and contain interactive buttons or drop-down menus to enter and select appropriate data. Some buttons change from red to green to provide an organized data entry approach. Once all data has been provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export data to the local R environment.
+
+![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
+
+### Running the image analysis
+*analyze_images_GUI* is a simple UI that contains three interactive buttons as well as an interactive data table. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the *input_data_GUI* function. Once the completion sound has been played (using the ***beepr*** package), users can click the "Refresh" button to update the table below with the analyzed data and review. Once finished with analysis, the "Close window" button to exit the UI.
+
+![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
+
+
+# Package limitations/constraints:
+
+The current version of this package may be limiting for some users regarding processing power. Analysis with this package uses local memory, which may be limiting if expected to analyze large amounts of images in batches. It is recommended to have at least 16GB of localized RAM, the ability to use cloud computing (i.e. Microsoft Azure), or organize images in easier-to-analyze batches to reduce local memory strain.
+
+Cells with a uniform chloroplast (auto-fluorescence) or fluorescent dyes illuminating the entire cell are the most useful when using this version of ***cellcount*** for enumeration purposes. Other cells such as dinoflagellates (i.e. *Karenia* sp.) that contain multiple discriminate chloroplasts are difficult to enumerate as the ***cellcount*** approach may separate these lobed chloroplasts into unique cells, causing enumeration outputs to be unreliable. *In-situ* hybridization dyes that target specific species or genera may be helpful if other cellular features are not acceptable in providing accurate enumeration.
+
+Users must be aware that this package does not contain abilities to classify distinct cell types (i.e., species). The development of this package utilized mono-culture of various cyanobacteria species. Users may find difficulty in using this analysis tool if cultures contain heavy amounts of particulates, other cellular debris, and contamination of other species. It is advised to use this tool for single-species only, however future developments of this tool are planned to include identifying cell features and deep-learning mechanics that use image libraries of unique cellular species.
+
+Outside of package limitations, users must be aware of limitations that may arise from poor microscope image quality; reduce room lighting for best results, avoid heavy background fluorescence, reduce debris/particulates, and so forth. Good images produce good ***cellcount*** results.
+
+# Conclusions:
+
+***cellcount*** provides an open-source approach to bacteria and cyanobacteria enumeration that is accurate and rapid compared to standardized microscopy methods. The open-source approach allows researchers to access this tool for free and to modify and make additions to the existing code to fulfill particular needs, whereas the Shiny GUI allows users of all coding backgrounds to utilize this analysis tool.
+
+# Literature Cited
+
+---
+references:
+  - type: technical-report
+    id: Pokrzywinski2019
+    author:
+      - family: Pokrzywinski
+        given: K.
+      - family: Boyd
+        given: B.M.
+      - family: Smith
+        given: S.J.
+    issued:
+      date-parts:
+      - - 2019
+        - 8
+    title: 'A high-throughput method for counting cyanobacteria using fluorescence microscopy'
+    DOI: 10.21079/11681/33870
+    URL: https://erdc-library.erdc.dren.mil/jspui/handle/11681/33870
+    
+  - type: article-journal
+    id: Pau2010
+    author:
+      - family: Pau
+        given: G.
+      - family: Fuchs
+        given: F.
+      - family: Skylar
+        given: O.
+      - family: Boutros
+        given: M.
+      - family: Huber
+        given: W.
+    issued:
+      date-parts:
+      - - 2010
+        - 3
+        - 23
+    title: 'EBImage—an R package for image processing with applications to cellular phenotypes'
+    container-title: Bioinformatics
+    volume: 26
+    issue: 7
+    page: 979-981
+    DOI: 10.1093/bioinformatics/btq046
+    URL: https://academic.oup.com/bioinformatics/article/26/7/979/211835
+    
+  - type: package
+    id: Urbanek2022
+    author:
+      - family: Urbanek
+        given: S.
+      - family: Johnson
+        given: K.
+    issued:
+      date-parts:
+      - - 2022
+        - 1
+        - 31
+    title: 'tiff: Read and Write TIFF Images. R package version 0.1-11.'
+    URL: https://www.rforge.net/tiff/
+    
+  - type: package
+    id: Bivand2021
+    author:
+      - family: Bivand
+        given: R.
+      - family: Leisch
+        given: F.
+      - family: Maechler
+        given: Martin
+    issued:
+      date-parts:
+      - - 2021
+        - 1
+        - 29
+    title: 'Bitmap Images/Pixel Maps, R Package Version 0.4.12.'
+    URL: https://cran.r-project.org/package=pixmap
+    
+  - type: book
+    id: Wetzel2000
+    author:
+      - family: Wetzel
+        given: R.G.
+      - family: Likens
+        given: G.E.
+    issued:
+      date-parts:
+      - - 2000
+        - 3
+        - 3
+    title: 'Limnological Analyses - 3rd Edition'
+    page: 271-274
+    DOI: 10.1007/978-1-4757-3250-4
+    URL: https://link.springer.com/book/10.1007/978-1-4757-3250-4
+    
+  - type: package
+    id: Baath2018
+    author:
+      - family: Baath
+        given: R.
+      - family: Dobbyn
+        given: A.
+    issued:
+      date-parts:
+      - - 2018
+        - 6
+        - 4
+    title: 'beepr: Easily Play Notification Sounds on any Platform'
+    URL: https://cran.r-project.org/web/packages/beepr/index.html
+    
+  - type: package
+    id: Hijmans2023
+    author:
+      - family: Hijmans
+        given: R.J
+      - family: van Etten
+        given: J.
+      - family: Sumner
+        given: M.
+      - family: Cheng
+        given: J.
+      - family: Baston
+        given: D.
+      - family: Bevan
+        given: A.
+      - family: Bivand
+        given: R.
+      - family: Busetto
+        given: L.
+      - family: Canty
+        given: M.
+      - family: Fasoli
+        given: B.
+      - family: Forrest
+        given: D.
+      - family: Ghosh
+        given: A.
+      - family: Golicher
+        given: D.
+      - family: Gray
+        given: J.
+      - family: Greenburg
+        given: J.A.
+      - family: Hiemstra
+        given: P.
+      - family: Hingee
+        given: K.
+      - family: Ilich
+        given: A.
+      - family: Karney
+        given: C.
+      - family: Mattiuzzi
+        given: M.
+      - family: Mosher
+        given: S.
+      - family: Naimi
+        given: B.
+      - family: Nowosad
+        given: J.
+      - family: Pebesma
+        given: E.
+      - family: Lamigueiro
+        given: O.P.
+      - family: Racine
+        given: E.B.
+      - family: Rowlingson
+        given: B.
+      - family: Shortridge
+        given: A.
+      - family: Venables
+        given: B.
+      - family: Wueest
+        given: R.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 16
+    title: 'raster: Geographic Data Analysis and Modeling'
+    URL: https://cran.r-project.org/web/packages/raster/index.html
+    
+  - type: package
+    id: Bailey2022
+    author:
+      - family: Bailey
+        given: E.
+    issued:
+      date-parts:
+      - - 2022
+        - 4
+        - 17
+    title: 'shinyBS: Twitter Bootstrap Components for Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyBS/index.html
+    
+  - type: package
+    id: Chang2022
+    author:
+      - family: Chang
+        given: W.
+      - family: Cheng
+        given: J.
+      - family: Allaire
+        given: J.
+      - family: Boutros
+        given: M.
+      - family: Huber
+        given: W.
+    issued:
+      date-parts:
+      - - 2022
+        - 12
+        - 15
+    title: 'Shiny: Web application framework for R'
+    URL: https://cran.r-project.org/web/packages/shiny/index.html
+    
+  - type: package
+    id: Pedersen2022
+    author:
+      - family: Pedersen
+        given: T.L.
+      - family: Nijs
+        given: V.
+      - family: Schaffner
+        given: T.
+      - family: Nantz
+        given: E.
+    issued:
+      date-parts:
+      - - 2022
+        - 8
+        - 19
+    title: 'shinyFiles: A Server-Side File System Viewer for Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyFiles/index.html
+    
+  - type: package
+    id: 1Attali2021
+    author:
+      - family: Attali
+        given: D.
+      - family: Edwards
+        given: T.
+      - family: Wang
+        given: Z.
+    issued:
+      date-parts:
+      - - 2021
+        - 12
+        - 20
+    title: 'shinyalert: Easily Create Pretty Popup Messages (Modals) in Shiny'
+    URL: https://cran.r-project.org/web/packages/shinyalert/index.html
+    
+  - type: package
+    id: 2Attali2021
+    author:
+      - family: Attali
+        given: D.
+    issued:
+      date-parts:
+      - - 2021
+        - 12
+        - 23
+    title: 'shinyjs: Easily Improve the User Experience of Your Shiny Apps in Seconds'
+    URL: https://cran.r-project.org/web/packages/shinyjs/index.html
+    
+  - type: package
+    id: Xie2023
+    author:
+      - family: Xie
+        given: Y.
+      - family: Cheng
+        given: J.
+      - family: Tan
+        given: X.
+      - family: Allaire
+        given: J.J.
+      - family: Girlich
+        given: M.
+      - family: Ellis
+        given: G.F.
+      - family: Rauh
+        given: J.
+      - family: Reavis
+        given: B.
+      - family: Gersen
+        given: L.
+      - family: Szopka
+        given: B.
+      - family: Pickering
+        given: A.
+      - family: Holmes
+        given: W.
+      - family: Marttila
+        given: M.
+      - family: Quintero
+        given: A.
+      - family: Laurent
+        given: S.
+    issued:
+      date-parts:
+      - - 2023
+        - 1
+        - 17
+    title: 'DT: A Wrapper of the JavaScript Library DataTables'
+    URL: https://cran.r-project.org/web/packages/DT/index.html
+---
