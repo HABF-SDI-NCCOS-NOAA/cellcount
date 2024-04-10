@@ -1,10 +1,13 @@
 Package: cellcount
-Version: 0.5-1
+Date: 2024-04-10
+Version: 1.0
 Title: cellcount: functions for cell counting image analysis
 Authors@R: c(person ("Tyler", "Harman", role=c("aut","cre"),
-              email= "tyler.harman@noaa.gov"),
+              email= "tyler.harman@noaa.gov",
+              comment = c(ORCID = "0000-0001-5007-8170")),
               person ("Kaytee", "Pokrzywinski", role=c("aut","cre"),
-              email= "kaytee.pokrzywinski@noaa.gov"))
+              email= "kaytee.pokrzywinski@noaa.gov",
+              comment = c(ORCID = "0000-0003-1523-9930")))
 Author: Tyler Harman [aut,cre]
   Kaytee Pokrzywinski [aut,cre]
 Maintainer: Tyler Harman <tyler.harman@noaa.gov>
