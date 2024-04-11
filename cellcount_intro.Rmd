@@ -71,16 +71,16 @@ savdir <- ("C:/file path for saving CSV data")
 image_savdir <- ("C:/file path for saving converted images")
 ```
 ```{r,include=FALSE}
-savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
-image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
 ```
 
 Next, images that are of interest will need to read into the R environment using
 the following code. This example uses 'tif' images of *Microcystis* sp. that are provided within the ***cellcount*** package:
 
 ```{r}
-images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
-images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
+images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 ```
 
 In addition, users can assign additional identifications to each file for easy organization, as shown here:
@@ -416,10 +416,10 @@ Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(
 
 file_name<-paste0("img_")
 
-savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
-image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
-images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
-images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
+images <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/NZ_Anabena_60x/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -565,10 +565,10 @@ Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(
 
 file_name<-paste0("img_")
 
-savdir <- ("./cellcount_files_HABF/inst/extdata/test_data/")
-image_savdir <- ("./cellcount_files_HABF/inst/extdata/test_results/")
-images <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
-images_names <- list.files("./cellcount_files_HABF/inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
+savdir <- ("./inst/extdata/test_data/")
+image_savdir <- ("./inst/extdata/test_results/")
+images <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = T)
+images_names <- list.files("./inst/extdata/test_images/Shewanella_100x_DAPI/", pattern = "tif", full.name = F)
 
 imgNames <- paste0(file_name, images_names)
 read_images <- lapply(images, readTIFF)
@@ -657,12 +657,12 @@ library(shinyBS)
 The *input_data_GUI* function generates a Shiny UI where users can enter information regarding directories, numerical and categorical data, 
 and selecting analysis type. Tabs to the left of the UI separate particular categories for easy organization and contain interactive buttons or drop-down menus to enter and select appropriate data. Some buttons change from red to green to provide an organized data entry approach. Once all data has been provided, users complete the input of data by selecting the "Completion" tab and clicking the "Submit data entries" button to export data to the local R environment.
 
-![Visual demonstration of the Shiny GUI for inputting data.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_1.png)
+![Visual demonstration of the Shiny GUI for inputting data.](./inst/figures/cellcount-UI_1.png)
 
 ### Running the image analysis
 *analyze_images_GUI* is a simple UI that contains three interactive buttons as well as an interactive data table. "Run Image Analysis" simply runs the image analysis previously outlined in this document and uses the inputted data from the *input_data_GUI* function. Once the completion sound has been played (using the ***beepr*** package), users can click the "Refresh" button to update the table below with the analyzed data and review. Once finished with analysis, the "Close window" button to exit the UI.
 
-![Visual demonstration of the Shiny GUI for running image analysis.](C:/Users/Tyler.Harman/Pictures/cellcount-UI_2.png)
+![Visual demonstration of the Shiny GUI for running image analysis.](./inst/figures/cellcount-UI_2.png)
 
 
 # Package limitations/constraints:
