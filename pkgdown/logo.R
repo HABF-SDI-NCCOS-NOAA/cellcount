@@ -9,7 +9,9 @@ noaa <- magick::image_read("https://www.noaa.gov/sites/default/files/2022-03/noa
 test_image1 <- ggdraw() +
   draw_image(noaa)
 
-microscope <- magick::image_read("https://static.vecteezy.com/system/resources/previews/007/165/321/original/microscope-icon-microscope-icon-simple-sign-microscope-icon-free-free-vector.jpg") %>%
+test_image1
+
+microscope <- magick::image_read("https://cdn.icon-icons.com/icons2/1465/PNG/512/708microscope_100683.png") %>%
   magick::image_resize("400x400")
 
 test_image2 <- ggdraw() +
@@ -18,15 +20,15 @@ test_image2 <- ggdraw() +
 hexSticker::sticker(
   filename = "inst/figures/logo.png",
   subplot = test_image2,
-  s_width = 1.25, s_height = 1.5,
-  s_x = 1, s_y = .8,
+  s_width = .95, s_height = 1.5,
+  s_x = 1, s_y = .75,
   package = "cellcount",
-  p_size = 24,
-  p_color = "orange",
+  p_size = 26,
+  p_color = "royalblue",
   h_size = 1,
-  h_fill = "white",
+  h_fill = "grey95",
   h_color = "black",
   url = "HABF-SDI-NCCOS-NOAA/HABF_cellcount",
   u_size = 4,
-  u_color = "black"
+  u_color = "royalblue"
 ) %>% plot()
