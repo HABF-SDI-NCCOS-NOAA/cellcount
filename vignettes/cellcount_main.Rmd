@@ -43,7 +43,7 @@ In addition, the following packages are required to use functions within ***cell
 
 ***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
 
-```{r, message=FALSE}
+```{r, message=FALSE,warning=FALSE}
 if (!require("EBImage")) {
   BiocManager::install("EBImage")
 }
@@ -321,8 +321,7 @@ write.csv(Demo.Results, paste0(savdir, "/F192_Test counts.csv"))
 ```
 
 
-# Output data from test images in 
-#the ***cellcount*** package:
+# Output data from test images in the ***cellcount*** package:
 
 ### Test data results for *Microcystis* strain F-192
 ```{r,echo=FALSE}
