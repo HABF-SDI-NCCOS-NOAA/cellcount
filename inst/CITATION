@@ -8,13 +8,13 @@ note <- sprintf("R package version %s", meta$Version)
 bibentry(
   bibtype = "Manual",
   title = title,
-  author = c(person("Tyler","Harman"),
+  author = c(person("Tyler E.","Harman"),
              person("Kaytee","Pokrzywinski")),
   year = year,
   note = note,
   url = url,
   textVersion = paste0(
-  "Tyler Harman, Kaytee Pokrzywinski (",year,"). ", title, ". ", note, ". ",
+  "Tyler E. Harman, Kaytee Pokrzywinski (",year,"). ", title, ". ", note, ". ",
   url
   )
 )
