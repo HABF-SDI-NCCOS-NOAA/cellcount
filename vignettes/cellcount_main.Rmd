@@ -3,10 +3,6 @@ title: "Introduction to cellcount"
 author: 
   - name: Tyler E. Harman 
     affiliation: Consolidated Safety Services (Contracted to NOAA NCCOS), Fairfax, VA 22031, USA
-
-    
-  - name: Mark W. Vandersea
-    affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
   
   - name: Kaytee Pokrzywinski, PhD
     affiliation: National Oceanic and Atmospheric Administration, National Centers for Coastal Ocean Science, Beaufort, NC 28516, USA
@@ -35,11 +31,14 @@ library(cellcount)
 
 In addition, the following packages are required to use functions within ***cellcount***:
 
+- ***RTools***
 - ***EBImage*** [@Pau2010]
 - ***tiff*** [@Urbanek2022]
 - ***pixmap*** [@Bivand2021]
 - ***raster*** [@Hijmans2023]
 - ***beepr*** [@Baath2018]
+
+Users that use the Windows OS system can access the download materials for ***RTools*** here: https://cran.rstudio.com/bin/windows/Rtools/rtools44/rtools.html
 
 ***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
 
@@ -65,9 +64,18 @@ Demo.Results <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(
 
 In order to appropriately save files from the ***cellcount*** analysis, some directories will be required; one for saving the unique color label images and another for CSV files. Please note that directory addresses will be different based on operating system and location. It is recommended to use a dedicated directory for ***cellcount*** results:
 
-```{r,message=FALSE}
-savdir <- ("C:/file path for saving CSV data")
-image_savdir <- ("C:/file path for saving converted images")
+```{r,message=FALSE,warning=FALSE}
+main_directory <- paste0("C:/file path for saving converted images")
+
+savdir <- paste0(main_directory,"/test_data/")
+if(!dir.exists(savdir)){
+  dir.create(savdir)
+}
+
+image_savdir <- paste0(main_directory,"/test_results/")
+if(!dir.exists(image_savdir)){
+  dir.create(image_savdir)
+}
 ```
 ```{r,include=FALSE}
 savdir <- ("../inst/extdata/test_data/")
@@ -117,7 +125,7 @@ greyscale <- function(x, contrast = 2) {
 ```
 ```{r,fig.cap="Converted greyscale image of *Microcystis* sp."}
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-display(grey_images[[5]])
+EBImage::display(grey_images[[5]])
 ```
 
 The *mapped* function turns the converted 8-bit image into a data matrix. An additional function to 
@@ -139,6 +147,11 @@ mapped_avg <- function(x) {
 }
 ```
 ```{r,message=FALSE,warning=FALSE}
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
+
 img1<-lapply(grey_images,mapped_avg)
 pre_adj<-median(img1[[5]])
 main_adj<-pre_adj+0.2
@@ -225,13 +238,13 @@ Demo.Results
 In same cases, some images that were initially taken may be too poor of quality or contain
 high background fluorescence, among other errors that may arise. The following code analyzes 
 outliers from the produced data, within a range of two standard deviations 
-above and below the median. The *outlier_detect* function tags which images are
+above and below the median. The *outlier* function tags which images are
 out of this range and dictates a warning within our data frame, which is shown 
 below. This alerts the end-user to investigate the error further where re-imaging a sample
 may be necessary:
 
 ```{r,include=FALSE}
-outlier_detect<-function(){
+outlier<-function(){
   mean<-median(Demo.Results$Cell_Count)
   sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
@@ -242,8 +255,18 @@ outlier_detect<-function(){
 }
 ```
 ```{r}
+outlier<-function(){
+  mean<-median(Demo.Results$Cell_Count)
+  sd<-sd(Demo.Results$Cell_Count)*2
+  sd_neg<-(mean-sd)
+  sd_pos<-(mean+sd)
+  SD_range_detection<-ifelse(sd_pos>Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)&
+    ifelse(sd_neg<Demo.Results$Cell_Count,Demo.Results$Cell_Count,NA)
+  return(SD_range_detection)
+}
+
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$within_outlier_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier()
 Demo.Results
 ```
 
@@ -254,7 +277,7 @@ to a cell density variable, where it can be added to the 'Demo.Results' data fra
 ```{r}
 cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total,"null")
 ```
 
 Calculating cell density requires multiple
@@ -289,7 +312,7 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
 ```{r}
 cell.den <- cell_density(cell.total, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5)
 cell.den <- round(cell.den,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den,"null")
 ```
 
 The average number of cells per image can also be calculated, as well as cells
@@ -300,11 +323,11 @@ filtered subsample was aliquotted from:
 
 ```{r}
 cell.av<-(cell.total/10) #change this via total number of images
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av,"null")
 
 cell.mL<-(cell.den/5) #change this via total volume
 cell.mL <- round(cell.mL,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 ```
 
 Calling upon the 'Demo.Results' data frame can show the new generated data and to double check for any calculation errors:
@@ -397,7 +420,7 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   cyano_total <- cyano * total.volume
   return(cyano_total)
 }
-outlier_detect<-function(){
+outlier<-function(){
   mean<-median(Demo.Results$Cell_Count)
   sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
@@ -452,23 +475,23 @@ for (z in 1:length(images)) {
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$within_outlier_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier()
 
 cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
 
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total,"null")
 
 cell.den <- cell_density(cell.total, FOV = 0.027770534, images = 10, filtration.area = 213.8, volume = 0.5, total.volume =15)
 cell.den <- round(cell.den,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den,"null")
 
 cell.av<-(cell.total/10)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av,"null")
 
 cell.mL<-(cell.den/15)
 cell.mL <- round(cell.mL,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
 
 
@@ -545,7 +568,7 @@ cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, 
   cyano_total <- cyano * total.volume
   return(cyano_total)
 }
-outlier_detect<-function(){
+outlier<-function(){
   mean<-median(Demo.Results$Cell_Count)
   sd<-sd(Demo.Results$Cell_Count)*2
   sd_neg<-(mean-sd)
@@ -600,23 +623,23 @@ for (z in 1:length(images)) {
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
-Demo.Results$within_outlier_range<-outlier_detect()
+Demo.Results$within_outlier_range<-outlier()
 
 cell.total <- as.numeric(Demo.Results$Cell_Count)
 cell.total <- sum(cell.total)
 
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Total", cell.total,"null")
 
 cell.den <- cell_density(cell.total, FOV = 0.00042, images = 10, filtration.area = 213.8, volume = 0.02, total.volume =2)
 cell.den <- round(cell.den,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Cell Density", cell.den,"null")
 
 cell.av<-(cell.total/10)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Imaging Average",cell.av,"null")
 
 cell.mL<-(cell.den/2)
 cell.mL <- round(cell.mL,2)
-Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL," ")
+Demo.Results[nrow(Demo.Results) + 1, ] <- c("Total Volume Cell per mL",cell.mL,"null")
 
 write.csv(Demo.Results, paste0(savdir, "/Shewanella_test counts.csv"))
 

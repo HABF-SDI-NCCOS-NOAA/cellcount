@@ -6,21 +6,26 @@ library(beepr)
 library(outliers)
 library(cellcount)
 
-mapped_avg <- function(x) {
-  x <- as.matrix(x)
-  return(x)
-}
-
 # clear environment and free unused memory
 gc()
 
 Cell.Count <- data.frame(Image_File_Name = character(0), Cell_Count = numeric(0))
-
 file_name<-paste0("F192_") #Change the name of species analyzed here
 
+getwd() #Location of current working directory and where folders will be generated/files stored
+
 #Change directories here
-savdir <- ("./inst/extdata/test_data/")
-image_savdir <- ("./inst/extdata/test_results/")
+main_directory <- paste0("C:/Users/Tyler.Harman/Desktop") #Set working directory here to store outcoming data
+savdir <- paste0(main_directory,"/test_data/")
+if(!dir.exists(savdir)){
+  dir.create(savdir)
+}
+
+image_savdir <- paste0(main_directory,"/test_results/")
+if(!dir.exists(image_savdir)){
+  dir.create(image_savdir)
+}
+
 images <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = T)
 images_names <- list.files("./inst/extdata/test_images/Microcystis_F192_40x/", pattern = "tif", full.name = F)
 
@@ -30,7 +35,12 @@ img_transposed <- lapply(read_images,aperm,c(2,1,3))
 names(images) <- imgNames
 
 grey_images <- lapply(img_transposed, greyscale, contrast = 4)
-display(grey_images[[2]]) #visualize contrast/brightness adjustment here
+EBImage::display(grey_images[[2]]) #visualize contrast/brightness adjustment here
+
+mapped_avg <- function(x) {
+  x <- as.matrix(x)
+  return(x)
+}
 
 img1<-lapply(grey_images,mapped_avg)
 
@@ -56,7 +66,7 @@ outlier<-function(){
     ifelse(sd_neg<Cell.Count$Cell_Count,Cell.Count$Cell_Count,NA)
   return(SD_range_detection)
 }
-Cell.Count$SD_range<-outlier()
+Cell.Count$within_outlier_range<-outlier()
 
 cell.total <- as.numeric(Cell.Count$Cell_Count)
 cell.total <- sum(cell.total)
