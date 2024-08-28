@@ -12,15 +12,37 @@ The ***cellcount*** package provides a simple an automated approach to quantifyi
 
 Please refer to the vingette documentation file under *Articles* to learn more about the package, analyze demo data, and explore how this tool can apply to your research.
 
-Refer any errors or issues to: tyler.harman@noaa.gov
+Refer any errors or issues to: HAB@noaa.gov
 
-## Package installation:
+## Package installation using RStudio IDE:
 
 To get started with cellcount, make a local clone of the repository using programs like GitHub Desktop or download the project file directly from this repository. Save the folder in an easily accessible location. Once cloned, open the R project file within the RStudio IDE and install the package locally by selecting *build*>*install package*, or use the shortcut Ctrl+Shift+B (Cmd+Shift+B for MacOS users). Once the cellcount package is installed, the following code can be used to bring cellcount into the R environment:
 
 ```{r}
 library(cellcount)
 ```
+
+## Package installation using devtools:
+
+Download the zipped R package using the green "Clone or download" button. Unzip the file to the location of your choice. If you do not unzip the file, the following steps will not work!
+
+In R studio, open the cellcount R project file in the folder of the same name and use the following code to install the package. You must be in the cellcount R project. If you aleady have devtools installed you can skip the first line.
+
+```{r}
+install.packages('devtools')
+
+devtools::install()
+```
+
+Exit the cellcount R project and check your R library to confirm the package installed. At this point you can either delete the files from the zipped folder or retain them if you are interested in the analysis code. You can find these particular script files stored in the *cellcount_files_HABF* folder.
+
+From your current project, use the following code to load and use the package.
+
+```{r}
+library(cellcount) 
+```
+
+Note: Requires R version 4.3.0 or higher.
 
 ## NOAA NCCOS HAB-Forecasting
 
