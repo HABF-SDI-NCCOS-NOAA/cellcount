@@ -40,7 +40,15 @@ In addition, the following packages are required to use functions within ***cell
 
 Users that use the Windows OS system can access the download materials for ***RTools*** here: https://cran.rstudio.com/bin/windows/Rtools/rtools44/rtools.html
 
-***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. Use the following code to install and load the packages into the R environment before starting: 
+***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. If users do not have Bioconductor installed, use the following code to install:
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install(version = "3.19")
+```
+
+Use the following code to install and load the packages into the R environment before starting. Users can use the *pacman* library to simplify package installation: 
 
 ```{r, message=FALSE,warning=FALSE}
 if (!require("EBImage")) {
@@ -48,10 +56,9 @@ if (!require("EBImage")) {
 }
 library(EBImage)
 
-library(tiff)
-library(pixmap)
-library(raster)
-library(beepr)
+install.packages("pacman")
+library(pacman)
+pacman::p_load(tiff,pixmap,raster,beepr)
 ```
 
 # Setting up directories/reading files:
@@ -119,7 +126,7 @@ greyscale <- function(x, contrast = 2) {
   x <- contrast * x
   x <- x[, , 1] + x[, , 2] + x[, , 3]
   x <- x / max(x)
-  x <- normalize(x, inputRange = c(0.1, 0.75))
+  x <- EBImage::normalize(x, inputRange = c(0.1, 0.75))
   return(x)
 }
 ```
@@ -184,26 +191,26 @@ count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     dims <- dim(image)
     border1 <- border(image, dims)
     ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
+    inner <- EBImage::rmObjects(image, ids)
     EBImage::colorLabels(inner, normalize = normalize)
   } else {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
 single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- fillHull(image)
-  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
-  nf <- computeFeatures.shape(image2)
+  image <- EBImage::thresh(x, w = w, h = h, offset = offset)
+  image1 <- EBImage::fillHull(image)
+  image2 <- EBImage::watershed(EBImage::distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- EBImage::computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
+  image3 <- EBImage::rmObjects(image2, nr)
   return(image3)
 }
 ```
 ```{r,fig.cap="A converted color-label image of *Microcystis* sp."}
 imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
-display(final_img)
+EBImage::display(final_img)
 ```
 
 # Analysis of images for producing count data:
@@ -224,7 +231,7 @@ for (z in 1:length(images)) {
   count <- count_cells(imagesConverted)
   Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+  EBImage::writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 ```
 
@@ -348,7 +355,7 @@ write.csv(Demo.Results, paste0(savdir, "/F192_Test counts.csv"))
 
 ### Test data results for *Microcystis* strain F-192
 ```{r,echo=FALSE}
-display(final_img)
+EBImage::display(final_img)
 Demo.Results
 ```
 <br>
@@ -365,7 +372,7 @@ greyscale <- function(x, contrast = 2) {
   x <- contrast * x
   x <- x[, , 1] + x[, , 2] + x[, , 3]
   x <- x / max(x)
-  x <- normalize(x, inputRange = c(0.1, 0.75))
+  x <- EBImage::normalize(x, inputRange = c(0.1, 0.75))
   return(x)
 }
 mapped <- function(x, threshold = 0.3) {
@@ -389,28 +396,28 @@ count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     dims <- dim(image)
     border1 <- border(image, dims)
     ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
+    inner <- EBImage::rmObjects(image, ids)
     EBImage::colorLabels(inner, normalize = normalize)
   } else {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
 single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- fillHull(image)
-  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
-  nf <- computeFeatures.shape(image2)
+  image <- EBImage::thresh(x, w = w, h = h, offset = offset)
+  image1 <- EBImage::fillHull(image)
+  image2 <- EBImage::watershed(EBImage::distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- EBImage::computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
+  image3 <- EBImage::rmObjects(image2, nr)
   return(image3)
 }
 filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
-  image2 <- fillHull(image1)
-  nf <- computeFeatures.shape(image2)
+  image <- EBImage::thresh(x, w = w, h = h, offset = offset)
+  image1 <- EBImage::watershed(EBImage::distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- EBImage::fillHull(image1)
+  nf <- EBImage::computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
+  image3 <- EBImage::rmObjects(image2, nr)
   return(image3)
 }
 cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
@@ -458,7 +465,7 @@ imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
 imagesConverted <- filamentous_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
-display(final_img)
+EBImage::display(final_img)
 ```
 
 ```{r,echo=FALSE}
@@ -471,7 +478,7 @@ for (z in 1:length(images)) {
   count <- count_cells(imagesConverted)
   Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+  EBImage::writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
@@ -513,7 +520,7 @@ greyscale <- function(x, contrast = 2) {
   x <- contrast * x
   x <- x[, , 1] + x[, , 2] + x[, , 3]
   x <- x / max(x)
-  x <- normalize(x, inputRange = c(0.1, 0.75))
+  x <- EBImage::normalize(x, inputRange = c(0.1, 0.75))
   return(x)
 }
 mapped <- function(x, threshold = 0.3) {
@@ -537,28 +544,28 @@ count_images <- function(image, normalize = TRUE, removeEdgeCells = TRUE) {
     dims <- dim(image)
     border1 <- border(image, dims)
     ids <- unique(border1[which(border1 != 0)])
-    inner <- rmObjects(image, ids)
+    inner <- EBImage::rmObjects(image, ids)
     EBImage::colorLabels(inner, normalize = normalize)
   } else {
     EBImage::colorLabels(image, normalize = normalize)
   }
 }
 single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- fillHull(image)
-  image2 <- watershed(distmap(image1), tolerance = tolerance, ext = ext)
-  nf <- computeFeatures.shape(image2)
+  image <- EBImage::thresh(x, w = w, h = h, offset = offset)
+  image1 <- EBImage::fillHull(image)
+  image2 <- EBImage::watershed(EBImage::distmap(image1), tolerance = tolerance, ext = ext)
+  nf <- EBImage::computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
+  image3 <- EBImage::rmObjects(image2, nr)
   return(image3)
 }
 filamentous_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 50, tolerance= 0.5, ext = 1) {
-  image <- thresh(x, w = w, h = h, offset = offset)
-  image1 <- watershed(distmap(image), tolerance = tolerance, ext = ext)
-  image2 <- fillHull(image1)
-  nf <- computeFeatures.shape(image2)
+  image <- EBImage::normalize(x, w = w, h = h, offset = offset)
+  image1 <- EBImage::watershed(EBImage::distmap(image), tolerance = tolerance, ext = ext)
+  image2 <- EBImage::fillHull(image1)
+  nf <- EBImage::computeFeatures.shape(image2)
   nr <- which(nf[, "s.area"] < areathresh)
-  image3 <- rmObjects(image2, nr)
+  image3 <- EBImage::rmObjects(image2, nr)
   return(image3)
 }
 cell_density <- function(x, FOV = 0.0726, images = 10, filtration.area = 213.8, volume = 1, total.volume = 5) {
@@ -606,7 +613,7 @@ imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
 imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
-display(final_img)
+EBImage::display(final_img)
 ```
 
 ```{r,echo=FALSE}
@@ -619,7 +626,7 @@ for (z in 1:length(images)) {
   count <- count_cells(imagesConverted)
   Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
   analyzed_image <- paste0(sub(".tif", replacement = "", x = imgNames[z]), "_analyzed.tiff")
-  writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
+  EBImage::writeImage(final_img, files = paste0(image_savdir, analyzed_image),compression=c("LZW"))
 }
 
 Demo.Results$Cell_Count<-as.numeric(Demo.Results$Cell_Count)
@@ -663,12 +670,7 @@ to utilize the ***cellcount*** package. The following overview uses 'Shiny' apps
 The following code can be used to bring packages into the R environment once the packages have been installed using CRAN:
 
 ```{r,message=FALSE,warning=FALSE}
-library(shiny)
-library(shinyalert)
-library(shinyFiles)
-library(shinyjs)
-library(DT)
-library(shinyBS)
+pacman::p_load(shiny,shinyalert,shinyFiles,shinyjs,DT,shinyBS)
 ```
 
 ### Inputting data
