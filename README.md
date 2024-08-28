@@ -8,11 +8,24 @@
 *Developed by NOAA NCCOS - SDI - HAB Forecasting Branch*
 
 ## Overview:
-The ***cellcount*** package provides a simple an automated approach to quantifying bacteria and cyanobacteria *via* flourescence microscopy. Cyanobacteria enumeration is an important tool to incorporate data results into mathematical models to assess bloom dynamics. However, standard manual cyanobacteria enumeration is considered time-consuming and can impact overall random error due to different inaccuracies from researcher to researcher. Here, we outline a new open-source tool, ***cellcount***, a package designed for the computing language R to assist with cyanobacteria enumeration. Fluorescent microscopy images are analyzed by this package to generate cyanobacteria counts to assess overall cell density from samples.
-
-Please refer to the vingette documentation file under *Articles* to learn more about the package, analyze demo data, and explore how this tool can apply to your research.
+The ***cellcount*** package provides a simple approach to quantifying bacteria and cyanobacteria *via* fluorescence microscopy. Microbial enumeration is an important tool for validating new methods and critical to assess potential ecological changes. However, standard manual microbial enumeration is time-consuming and notoriously difficult due to large colonies, filaments, and dense biomats. Conventional counting methods like microscopy require specialized expertise and are error prone due to variations between microscopists. Additionally, other methods of counting cells or particles (i.e. Coulter counter, flow cytometer, etc.) are not suitable for filamentous or colonial morphotypes that can clog flow cells and apertures. Here, we outline a new open-source package, ***cellcount***, a continuation of the report outlined in [@Pokrzywinski2019] and designed in the R computing language, to quickly and accurately count various microbial morphotypes. With this open source package, fluorescent microscope images can be analyzed to generate particle counts and quantify overall cell density from samples at a rapid speed with the accuracy of comparable conventional counting methods. Furthermore, additional tools are presented in this package using [R Shiny](https://cran.r-project.org/package=shiny) [@Chang2022] interfaces to demonstrate ease-of-use for researchers not familiar with the R environment. All materials outlined in this article, along with tutorials, can be found on NOAA's National Center for Coastal Ocean Science Harmful Algal Bloom Forecasting (NOAA NCCOS HAB-F) [GitHub.](https://github.com/orgs/HABF-SDI-NCCOS-NOAA/repositories)
 
 Refer any errors or issues to: HAB@noaa.gov
+
+# Getting started:
+
+***cellcount*** is an open-source R package for enumerating particles in fluorescent microscopy images distributed by NOAA NCCOS HAB-F on GitHub and uses components in the RStudio IDE program. It is advised to use both the latest version of R and RStudio before beginning.
+
+In addition, the following packages are required to use functions within ***cellcount***:
+
+- ***RTools***
+- ***EBImage*** [@Pau2010]
+- ***tiff*** [@Urbanek2022]
+- ***pixmap*** [@Bivand2021]
+- ***raster*** [@Hijmans2023]
+- ***beepr*** [@Baath2018]
+
+Users that use the Windows OS system can access the download materials for ***RTools*** here: https://cran.rstudio.com/bin/windows/Rtools/rtools44/rtools.html
 
 ## Package installation using RStudio IDE:
 
