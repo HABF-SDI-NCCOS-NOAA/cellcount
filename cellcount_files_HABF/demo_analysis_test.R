@@ -1,10 +1,6 @@
-library(EBImage)
-library(tiff)
-library(pixmap)
-library(raster)
-library(beepr)
-library(outliers)
-library(cellcount)
+library(pacman)
+
+pacman::p_load(EBImage,tiff,pixmap,raster,beepr,outliers,cellcount)
 
 # clear environment and free unused memory
 gc()
