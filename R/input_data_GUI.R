@@ -42,70 +42,218 @@ input_data_GUI<-function(){
       tabPanel(h4("Directories"),
                h3("   "),
                fixedRow(
-                 column(2,offset=2,shinyDirButton('path1','CSV save directory','Please select a directory to save CSV files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
+                 column(
+                   2,
+                   offset=2,
+                   shinyDirButton(
+                     'path1',
+                     'CSV save directory',
+                     'Please select a directory to save CSV files',
+                     FALSE,
+                     class = "btn-success",
+                     style='height:35px;width:350px;font-size:120%',
+                     icon=icon("folder-open")))
                ),
                h4("  "),
                fixedRow(
-                 column(2,offset=2,shinyDirButton('path2','Image save directory','Please select a directory to save Image files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
+                 column(
+                   2,
+                   offset=2,
+                   shinyDirButton(
+                     'path2',
+                     'Image save directory',
+                     'Please select a directory to save Image files',
+                     FALSE,
+                     class = "btn-success",
+                     style='height:35px;width:350px;font-size:120%',
+                     icon=icon("folder-open")))
                ),
                h4("  "),
                fixedRow(
-                 column(2,offset=2,shinyDirButton('path3','Image analysis directory','Please select a directory containing image files',FALSE,class = "btn-success",style='height:35px;width:350px;font-size:120%',icon=icon("folder-open")))
+                 column(
+                   2,
+                   offset=2,
+                   shinyDirButton(
+                     'path3',
+                     'Image analysis directory',
+                     'Please select a directory containing image files',
+                     FALSE,
+                     class = "btn-success",
+                     style='height:35px;width:350px;font-size:120%',
+                     icon=icon("folder-open")))
                )
       ),
       tabPanel(h4("Analysis Type"),
                h3("   "),
                fixedRow(
-                 column(8,offset=2,selectInput("selectData",
-                                               h5(strong("Please select one of the following options regarding imaging analysis type:")),
-                                               choices=list("Single-cell","Filamentous","Colonial"),selected="Single-cell"))
+                 column(
+                   8,
+                   offset=2,
+                   selectInput(
+                     "selectData",
+                     h5(strong("Please select one of the following options regarding imaging analysis type:")),
+                     choices=list("Single-cell","Filamentous","Colonial"),selected="Single-cell"))
                )
       ),
       tabPanel(h4("Data inputs"),
                h3("   "),
                fluidRow(
-                 column(1,bsButton("run4", align="center", "Species name", class = "btn-danger",size='large',icon=icon("clipboard"))),
-                 column(6,offset=5,bsButton("run6", align="center", 'Threshold adjustment', class = "btn-danger",size='large',icon=icon("gear")))
+                 column(
+                   1,
+                   bsButton(
+                     "run4", 
+                     align="center", 
+                     "Species name", 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("clipboard"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run6", 
+                     align="center", 
+                     'Threshold adjustment', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("gear")))
                ),
                h4("  "),
                fluidRow(
-                 column(1,bsButton("run7", 'Field of View', class = "btn-danger",size='large',icon=icon("magnifying-glass"))),
-                 column(6,offset=5,bsButton("run8", 'Number of images', class = "btn-danger",size='large',icon=icon("image")))
+                 column(
+                   1,
+                   bsButton(
+                     "run7", 
+                     'Field of View', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("magnifying-glass"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run8", 
+                     'Number of images', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("image")))
                ),
                h4("  "),
                fluidRow(
-                 column(1,bsButton("run9", 'Volume filtered', class = "btn-danger",size='large',icon=icon("vials"))),
-                 column(6,offset=5,bsButton("run10", 'Total volume', class = "btn-danger",size='large',icon=icon("flask")))
+                 column(
+                   1,
+                   bsButton(
+                     "run9", 
+                     'Volume filtered', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("vials"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run10", 
+                     'Total volume', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("flask")))
                ),
                h4("  "),
                fixedRow(
-                 column(1,bsButton("run11", 'Contrast adjustment', class = "btn-danger",size='large',icon=icon("gears"))),
-                 column(6,offset=5,bsButton("run12", 'Filtration area', class = "btn-danger",size='large',icon=icon("layer-group")))
+                 column(
+                   1,
+                   bsButton(
+                     "run11", 
+                     'Contrast adjustment', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("gears"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run12", 
+                     'Filtration area', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("layer-group")))
                ),
                h4("  "),
                fixedRow(
-                 column(1,bsButton("run14", 'Object tolerance', class = "btn-danger",size='large',icon=icon("circle-exclamation"))),
-                 column(6,offset=5,bsButton("run15", 'EXT input', class = "btn-danger",size='large',icon=icon("globe")))
+                 column(
+                   1,
+                   bsButton(
+                     "run14", 
+                     'Object tolerance', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("circle-exclamation"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run15", 
+                     'EXT input', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("globe")))
                ),
                h4("  "),
                fixedRow(
-                 column(1,bsButton("run16", 'Cell area threshold', class = "btn-danger",size='large',icon=icon("crop-simple"))),
-                 column(6,offset=5,bsButton("run13", 'CSV file name', class = "btn-danger",size='large',icon=icon("pen")))
+                 column(
+                   1,
+                   bsButton(
+                     "run16", 
+                     'Cell area threshold', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("crop-simple"))),
+                 column(
+                   6,
+                   offset=5,
+                   bsButton(
+                     "run13", 
+                     'CSV file name', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("pen")))
                ),
                h4("  "),
                fixedRow(
-                 column(1,bsButton("run17", 'Rectangular window width', class = "btn-danger",size='large',icon=icon("arrows-left-right")))
+                 column(
+                   1,
+                   bsButton(
+                     "run17", 
+                     'Rectangular window width', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("arrows-left-right")))
                ),
                h4("  "),
                fixedRow(
-                 column(1,bsButton("run18", 'Rectangular window height', class = "btn-danger",size='large',icon=icon("arrows-up-down")))
+                 column(
+                   1,
+                   bsButton(
+                     "run18", 
+                     'Rectangular window height', 
+                     class = "btn-danger",
+                     size='large',
+                     icon=icon("arrows-up-down")))
                )
       ),
       tabPanel(h4("Completion"),
                h3("   "),
                h3("   "),
                fixedRow(
-                 column(2,offset=2,actionButton("close", "Submit data entries",class = "btn-danger",style='height:35px;width:350px;font-size:120%',icon=icon("check")))
+                 column(
+                   2,
+                   offset=2,
+                   actionButton(
+                     "close", 
+                     "Submit data entries",
+                     class = "btn-danger",
+                     style='height:35px;width:350px;font-size:120%',
+                     icon=icon("check")))
                )
       ),
       "  ",
@@ -115,7 +263,9 @@ input_data_GUI<-function(){
     "  ",
     "  ",
     fixedRow(
-      column(4, "Developed by NOAA NCCOS HAB-F")
+      column(
+        4, 
+        "Developed by NOAA NCCOS HAB-F")
     )
     )
   )
