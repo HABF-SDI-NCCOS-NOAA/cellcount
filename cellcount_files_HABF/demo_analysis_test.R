@@ -11,7 +11,7 @@ file_name<-paste0("F192_") #Change the name of species analyzed here
 getwd() #Location of current working directory and where folders will be generated/files stored
 
 #Change directories here
-main_directory <- paste0("C:/Users/Tyler.Harman/Desktop") #Set working directory here to store outcoming data
+main_directory <- paste0("./") #Set working directory here to store outcoming data
 savdir <- paste0(main_directory,"/test_data/")
 if(!dir.exists(savdir)){
   dir.create(savdir)
