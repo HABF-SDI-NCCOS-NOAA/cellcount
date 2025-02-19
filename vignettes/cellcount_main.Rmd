@@ -11,6 +11,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+```{r setup-cran, include=FALSE}
+# Set CRAN mirror
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -42,10 +48,23 @@ Users that use the Windows OS system can access the download materials for ***RT
 
 ***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. If users do not have Bioconductor installed, use the following code to install:
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install(version = "3.18",ask = FALSE)
+```{r setup-packages, message=FALSE, warning=FALSE}
+# Suppress all messages and warnings
+suppressMessages(suppressWarnings({
+  # Capture and discard any output
+  capture.output({
+    # Install and load EBImage from Bioconductor
+    if (!requireNamespace("BiocManager", quietly = TRUE)) {
+      install.packages("BiocManager")
+    }
+    tryCatch({
+      BiocManager::install("EBImage", ask = FALSE, update = FALSE)
+      library(EBImage)
+    }, error = function(e) {
+      message("Error installing EBImage: ", e$message)
+    })
+  }, file = NULL)
+}))
 ```
 
 Use the following code to install and load the packages into the R environment before starting. Users can use the *pacman* library to simplify package installation: 
@@ -56,7 +75,6 @@ if (!require("EBImage")) {
 }
 library(EBImage)
 
-install.packages("pacman")
 library(pacman)
 pacman::p_load(tiff,pixmap,raster,beepr,install=FALSE)
 ```
@@ -136,7 +154,7 @@ greyscale <- function(x, contrast = 2) {
 ```
 ```{r,fig.cap="Converted greyscale image of *Microcystis* sp."}
 grey_images <- lapply(img_transposed, greyscale, contrast = 1)
-EBImage::display(grey_images[[5]])
+EBImage::display(grey_images[[1]])
 ```
 
 The *mapped* function turns the converted 8-bit image into a data matrix. An additional function to 
@@ -164,7 +182,7 @@ mapped_avg <- function(x) {
 }
 
 img1<-lapply(grey_images,mapped_avg)
-pre_adj<-median(img1[[5]])
+pre_adj<-median(img1[[1]])
 main_adj<-pre_adj+0.2
 imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 ```
@@ -212,7 +230,7 @@ single_cell_convert <- function(x, w = 17, h = 17, offset = 0.001, areathresh = 
 }
 ```
 ```{r,fig.cap="A converted color-label image of *Microcystis* sp."}
-imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+imagesConverted <- single_cell_convert(imagesMapped[[1]], w = 10, h = 10, offset = 0.001, areathresh = 100, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 EBImage::display(final_img)
 ```
@@ -230,7 +248,7 @@ to save each unique color label image to the "image_savdir" directory:
 
 ```{r}
 for (z in 1:length(images)) {
-  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+  imagesConverted <- single_cell_convert(imagesMapped[[z]], w = 10, h = 10, offset = 0.001, areathresh = 100, tolerance = 0.8, ext = 1)
   final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
   count <- count_cells(imagesConverted)
   Demo.Results[nrow(Demo.Results) + 1, ] <- c(imgNames[[z]], count)
@@ -463,11 +481,11 @@ mapped_avg <- function(x) {
   return(x)
 }
 img1<-lapply(grey_images,mapped_avg)
-pre_adj<-median(img1[[5]])
+pre_adj<-median(img1[[1]])
 main_adj<-pre_adj+0.2
 imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
-imagesConverted <- filamentous_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
+imagesConverted <- filamentous_convert(imagesMapped[[1]], w = 10, h = 10, offset = 0.001, areathresh = 250, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 EBImage::display(final_img)
 ```
@@ -611,11 +629,11 @@ mapped_avg <- function(x) {
   return(x)
 }
 img1<-lapply(grey_images,mapped_avg)
-pre_adj<-median(img1[[5]])
+pre_adj<-median(img1[[1]])
 main_adj<-pre_adj+0.2
 imagesMapped <- lapply(grey_images, mapped, threshold = main_adj)
 
-imagesConverted <- single_cell_convert(imagesMapped[[5]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
+imagesConverted <- single_cell_convert(imagesMapped[[1]], w = 10, h = 10, offset = 0.001, areathresh = 50, tolerance = 0.8, ext = 1)
 final_img <- count_images(imagesConverted, normalize = T, removeEdgeCells = T)
 EBImage::display(final_img)
 ```
