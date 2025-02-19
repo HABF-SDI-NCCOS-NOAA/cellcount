@@ -42,10 +42,10 @@ Users that use the Windows OS system can access the download materials for ***RT
 
 ***EBImage*** uses the [Bioconductor](http://bioconductor.org) development software system while the remaining packages use the CRAN server built within R. If users do not have Bioconductor installed, use the following code to install:
 
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
-BiocManager::install(version = "3.19")
+BiocManager::install(version = "3.18",ask = FALSE)
 ```
 
 Use the following code to install and load the packages into the R environment before starting. Users can use the *pacman* library to simplify package installation: 
@@ -58,7 +58,11 @@ library(EBImage)
 
 install.packages("pacman")
 library(pacman)
-pacman::p_load(tiff,pixmap,raster,beepr)
+pacman::p_load(tiff,pixmap,raster,beepr,install=FALSE)
+```
+```{r, include=FALSE}
+library(pacman)
+pacman::p_load(EBImage,tiff,pixmap,raster,beepr,install=FALSE)
 ```
 
 # Setting up directories/reading files:
