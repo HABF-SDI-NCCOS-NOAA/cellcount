@@ -36,7 +36,7 @@ options(download.file.method = "libcurl")
 remotes::install_github("HABF-SDI-NCCOS-NOAA/cellcount")
 ```
 
-## Package installation using local installtion:
+## Local package installation:
 
 If GitHub installation is unavailable, download the corresponding versioned source package in the project releases (tarball) and install it with the following code:
 
