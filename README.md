@@ -27,32 +27,21 @@ In addition, the following packages are required to use functions within ***cell
 
 Users that use the Windows OS system can access the download materials for ***RTools*** here: https://cran.rstudio.com/bin/windows/Rtools/rtools44/rtools.html
 
-## Package installation using RStudio IDE:
+## Package installation using GitHub:
 
-To get started with cellcount, make a local clone of the repository using programs like GitHub Desktop or download the project file directly from this repository. Save the folder in an easily accessible location. Once cloned, open the R project file within the RStudio IDE and install the package locally by selecting *build*>*install package*, or use the shortcut Ctrl+Shift+B (Cmd+Shift+B for MacOS users). Once the cellcount package is installed, the following code can be used to bring cellcount into the R environment:
+***cellcount*** is available for public installation from GitHub, using the ***remotes*** package. To install from GitHub, use the following code:
 
 ```{r}
-library(cellcount)
+options(download.file.method = "libcurl")
+remotes::install_github("HABF-SDI-NCCOS-NOAA/cellcount")
 ```
 
-## Package installation using devtools:
+## Package installation using local installtion:
 
-Download the zipped R package using the green "Clone or download" button. Unzip the file to the location of your choice. If you do not unzip the file, the following steps will not work!
-
-In R studio, open the cellcount R project file in the folder of the same name and use the following code to install the package. You must be in the cellcount R project. If you aleady have devtools installed you can skip the first line.
+If GitHub installation is unavailable, download the corresponding versioned source package in the project releases (tarball) and install it with the following code:
 
 ```{r}
-install.packages('devtools')
-
-devtools::install()
-```
-
-Exit the cellcount R project and check your R library to confirm the package installed. At this point you can either delete the files from the zipped folder or retain them if you are interested in the analysis code. You can find these particular script files stored in the *cellcount_files_HABF* folder.
-
-From your current project, use the following code to load and use the package.
-
-```{r}
-library(cellcount) 
+remotes::install_local("/path/to/cellcount_x.y.z.tar.gz")
 ```
 
 Note: Requires R version 4.3.0 or higher.
